@@ -56,6 +56,14 @@ struct Node {
     int offset; // kindがND_LVARの場合のみ使う
 };
 
+typedef struct FunctionData FunctionData;
+
+extern FunctionData functionData;
+
+struct FunctionData {
+    int locals; // ローカル変数の数
+};
+
 // 入力プログラム
 extern char *user_input;
 

@@ -1,6 +1,7 @@
 #include "9cc.h"
 
 Token *token;
+FunctionData functionData = {0};
 char *user_input;
 
 int main(int argc, char **argv) {
@@ -23,7 +24,7 @@ int main(int argc, char **argv) {
     // 変数25個分の領域を確保する
     printf("    push rbp\n");
     printf("    mov rbp, rsp\n");
-    printf("    sub rsp, 208\n");
+    printf("    sub rsp, %d\n", functionData.locals * 8);
 
     // 先頭の式から順にコード生成
     for (int i = 0; code[i]; i++) {

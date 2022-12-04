@@ -48,8 +48,20 @@ void *tokenize() {
             continue;
         }
 
-        if ('a' <= *p && *p <= 'z') {
-            cur = new_token(TK_IDENT, cur, p++, 1);
+        if ('a' <= *p && *p <= 'z' || 'A' <= *p && *p <= 'Z' || '_' == *p) {
+            // 変数名は、1文字目はa~z, A~Z, _のいずれか
+            int length = 1;
+
+            // 2文字目以降は、数字、a~z, A~Z_のいずれか
+            while(('1' <= *(p + 1)  && *(p + 1) <= '9') ||
+            ('a' <= *(p + 1) && *(p + 1) <= 'z') ||
+            ('A' <= *(p + 1) && *(p + 1) <= 'Z') ||
+            '_' == *(p + 1)) {
+                length++;
+                p++;
+            }
+            cur = new_token(TK_IDENT, cur, (p - length + 1) , length);
+            p++;
             continue;
         }
 

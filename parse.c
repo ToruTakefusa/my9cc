@@ -2,6 +2,18 @@
 
 Node *code[100];
 
+typedef struct LVar LVar;
+
+// ローカル変数の型
+struct LVar {
+    LVar *next; // 次の変数がNULL
+    char *name; // 変数の名前
+    int len;    // 変数の長さ
+    int offset; // RBPからのオフセット
+};
+
+LVar *locals;
+
 // 次のトークンが期待している記号のときには、トークンを1つ読み進めて
 // 真を返す。それ以外の場合には偽を返す。
 bool consume(char *op) {
@@ -46,6 +58,16 @@ int expect_number() {
 
 bool at_eof() {
     return token->kind == TK_EOF;
+}
+
+// 変数を名前で検索する。見つからなかった場合は、NULLを返す。
+LVar *find_lvar(Token *tok) {
+    for (LVar *var = locals; var; var = var->next) {
+        if (var->len == tok->len && !memcmp(tok->str, var->name, var->len)) {
+            return var;
+        }
+    }
+    return NULL;
 }
 
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
@@ -165,7 +187,20 @@ Node *primary() {
     if (tok) {
         Node *node = calloc(1, sizeof(Node));
         node->kind = ND_LVAR;
-        node->offset = (tok->str[0] - 'a' + 1) * 8;
+
+        LVar *lvar = find_lvar(tok);
+        if (lvar) {
+            node->offset = lvar->offset;
+        } else {
+            lvar = calloc(1, sizeof(LVar));
+            lvar->next = locals;
+            lvar->name = tok->str;
+            lvar->len = tok->len;
+            lvar->offset = !locals? 0 : (locals->offset + 8);
+            node->offset = lvar->offset;
+            locals = lvar;
+            functionData.locals++;
+        }
         return node;
     }
 

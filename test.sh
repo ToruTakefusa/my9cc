@@ -55,4 +55,8 @@ Foo + BAR;"
 assert 6 "_foo = 1;
 Bar1 = 2 + 3;
 _foo + Bar1;"
+assert 14 "a = 3;
+b = 5 * 6 - 8;
+return a + b / 2;"
+assert 5 "return 5;"
 echo OK

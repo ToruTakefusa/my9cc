@@ -30,10 +30,18 @@ bool consume(char *op) {
 Token *consume_ident() {
     if (token->kind != TK_IDENT)
         return NULL;
-    // Check: 下記でtokenは次に進まなかったっけ?
     Token *ret = token;
     token = token->next;
     return ret;
+}
+
+// 次のトークンがreturnのときには、トークンを読み進めて真を返す。
+// それ以外の場合は偽を返す。
+bool consume_return() {
+    if (token->kind != TK_RETURN)
+        return false;
+    token = token->next;
+    return true;
 }
 
 // 次のトークンが期待している記号のときには、トークンを1つ読み進める。
@@ -97,7 +105,16 @@ Node *expr() {
 }
 
 Node *stmt() {
-    Node *node = expr();
+    Node *node;
+
+    if (consume_return()) {
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_RETURN;
+        node->lhs = expr();
+    } else {
+        node = expr();
+    }
+
     expect(";");
     return node;
 }

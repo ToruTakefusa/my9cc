@@ -1,5 +1,7 @@
 #include "9cc.h"
 
+int labelCount = 0;
+
 void gen_lval(Node *node) {
     if (node->kind != ND_LVAR)
         error("代入の左辺値が変数ではありません");
@@ -31,10 +33,20 @@ void gen(Node *node) {
             return;
         case ND_RETURN:
             gen(node->lhs);
-            printf("  pop rax\n");
-            printf("  mov rsp, rbp\n");
-            printf("  pop rbp\n");
-            printf("  ret\n");
+            printf("    pop rax\n");
+            printf("    mov rsp, rbp\n");
+            printf("    pop rbp\n");
+            printf("    ret\n");
+            return;
+        case ND_IF:
+            // Todo: elseの実装
+            gen(node->lhs);
+            printf("    pop  rax\n");
+            printf("    cmp rax, 0\n");
+            printf("    je   .Lend%d\n", labelCount);
+            gen(node->rhs);
+            printf(".Lend%d:\n", labelCount);
+            labelCount++;
             return;
     }
 

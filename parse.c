@@ -95,7 +95,28 @@ void program() {
 Node *stmt() {
     Node *node;
 
-    if (consume(TK_RETURN)) {
+    if (consume(TK_IF)) {
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_IF;
+        expect("(");
+        node->lhs = expr();
+        expect(")");
+        node->rhs = stmt();
+
+        if (consume(TK_ELSE)) node->rhs->lhs = stmt();
+        return node;
+    } else if (consume(TK_WHILE)) {
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_WHILE;
+        expect("(");
+        node->lhs = expr();
+        node->rhs = stmt();
+        return node;
+    } else if (consume(TK_FOR)) {
+        // Todo: 実装
+        // token->nextで次の値をチェック
+        // consume_symbol()が使えるはず
+    } else if (consume(TK_RETURN)) {
         node = calloc(1, sizeof(Node));
         node->kind = ND_RETURN;
         node->lhs = expr();

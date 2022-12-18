@@ -59,4 +59,19 @@ assert 14 "a = 3;
 b = 5 * 6 - 8;
 return a + b / 2;"
 assert 5 "return 5;"
+
+# ifのテスト
+assert 0 "if (1) return 0;"
+assert 1 "a = 1;
+if(a) return 1;"
+assert 4 "b = 1;
+if (1)
+a = 3;
+c = a + b;
+return c;"
+# if elseのテスト
+
+# whileのテスト
+
+# forのテスト
 echo OK

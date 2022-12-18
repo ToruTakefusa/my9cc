@@ -9,7 +9,6 @@ int is_alnum(char c) {
            ('A' <= c && c <= 'Z') ||
            ('0' <= c && c <= '9') ||
            (c == '_');
-
 }
 
 // 新しいトークンを生成してcurに繋げる
@@ -53,6 +52,12 @@ void *tokenize() {
             char *q = p;
             cur->val = strtol(p, &p, 10);
             cur->len = p - q;
+            continue;
+        }
+
+        if (strncmp(p, "if", 2) == 0 && !is_alnum(p[2])) {
+            cur = new_token(TK_IF, cur, p, 2);
+            p += 2;
             continue;
         }
 

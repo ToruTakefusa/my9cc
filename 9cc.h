@@ -18,6 +18,10 @@ typedef enum {
     TK_NUM,      // 整数トークン
     TK_EOF,      // 入力の終わりを表すトークン
     TK_RETURN,   // return
+    TK_IF,       // if
+    TK_ELSE,
+    TK_WHILE,    // while
+    TK_FOR,      // for
 } TokenKind;
 
 typedef struct Token Token;
@@ -46,6 +50,9 @@ typedef enum {
     ND_LE, // <=
     ND_NUM, // 整数
     ND_RETURN, // return
+    ND_IF,  // if
+    ND_WHILE, // while
+    ND_FOR,  // for
 } NodeKind;
 
 typedef struct Node Node;
@@ -62,6 +69,7 @@ typedef struct FunctionData FunctionData;
 
 extern FunctionData functionData;
 
+// 関数関連の情報
 struct FunctionData {
     int locals; // ローカル変数の数
 };

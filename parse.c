@@ -16,7 +16,7 @@ LVar *locals;
 
 // 次のトークンが期待している記号のときには、トークンを1つ読み進めて
 // 真を返す。それ以外の場合には偽を返す。
-bool consume(char *op) {
+bool consume_symbol(char *op) {
     if (token->kind != TK_RESERVED ||
         strlen(op) != token->len ||
         memcmp(token->str, op, token->len))
@@ -25,23 +25,15 @@ bool consume(char *op) {
     return true;
 }
 
-// 次のトークンが識別子のときには、トークンを1つ読み進めて、
-// それ以外の場合には偽を返す。
-Token *consume_ident() {
-    if (token->kind != TK_IDENT)
+// 次のトークンが引数のトークン種別の場合、トークンを1つ読み進める。
+// それ以外の場合は、偽を返す。
+Token* consume(TokenKind kind) {
+    if (token->kind != kind) {
         return NULL;
+    }
     Token *ret = token;
     token = token->next;
     return ret;
-}
-
-// 次のトークンがreturnのときには、トークンを読み進めて真を返す。
-// それ以外の場合は偽を返す。
-bool consume_return() {
-    if (token->kind != TK_RETURN)
-        return false;
-    token = token->next;
-    return true;
 }
 
 // 次のトークンが期待している記号のときには、トークンを1つ読み進める。
@@ -103,7 +95,7 @@ void program() {
 Node *stmt() {
     Node *node;
 
-    if (consume_return()) {
+    if (consume(TK_RETURN)) {
         node = calloc(1, sizeof(Node));
         node->kind = ND_RETURN;
         node->lhs = expr();
@@ -121,7 +113,7 @@ Node *expr() {
 
 Node *assign() {
     Node *node = equality();
-    if (consume("="))
+    if (consume_symbol("="))
         node = new_node(ND_ASSIGN, node ,assign());
     return node;
 }
@@ -130,9 +122,9 @@ Node *equality() {
     Node *node = relational();
 
     for (;;) {
-        if (consume("==")) {
+        if (consume_symbol("==")) {
             node = new_node(ND_EQ, node, relational());
-        } else if (consume("!=")) {
+        } else if (consume_symbol("!=")) {
             node = new_node(ND_NE, node, relational());
         } else {
             return node;
@@ -144,13 +136,13 @@ Node *relational() {
     Node *node = add();
 
     for (;;) {
-        if (consume("<")) {
+        if (consume_symbol("<")) {
             node = new_node(ND_LT, node, add());
-        } else if (consume("<=")) {
+        } else if (consume_symbol("<=")) {
             node = new_node(ND_LE, node, add());
-        } else if (consume(">")) {
+        } else if (consume_symbol(">")) {
             node = new_node(ND_LT, add(), node);
-        } else if (consume(">=")) {
+        } else if (consume_symbol(">=")) {
             node = new_node(ND_LE, add(), node);
         } else {
             return node;
@@ -162,9 +154,9 @@ Node *add() {
     Node *node = mul();
 
     for (;;) {
-        if (consume("+"))
+        if (consume_symbol("+"))
             node = new_node(ND_ADD, node, mul());
-        else if (consume("-"))
+        else if (consume_symbol("-"))
             node = new_node(ND_SUB, node, mul());
         else
             return node;
@@ -175,9 +167,9 @@ Node *mul() {
     Node *node = unary();
 
     for (;;) {
-        if (consume("*"))
+        if (consume_symbol("*"))
             node = new_node(ND_MUL, node, unary());
-        else if (consume("/"))
+        else if (consume_symbol("/"))
             node = new_node(ND_DIV, node, unary());
         else
             return node;
@@ -185,22 +177,22 @@ Node *mul() {
 }
 
 Node *unary() {
-    if (consume("+"))
+    if (consume_symbol("+"))
         return primary();
-    if (consume("-"))
+    if (consume_symbol("-"))
         return new_node(ND_SUB, new_node_num(0), primary());
     return primary();
 }
 
 Node *primary() {
     // 次のトークンが"("なら、"(" expr ")"のはず
-    if (consume("(")) {
+    if (consume_symbol("(")) {
         Node *node = expr();
         expect(")");
         return node;
     }
 
-    Token *tok = consume_ident();
+    Token *tok = consume(TK_IDENT);
     if (tok) {
         Node *node = calloc(1, sizeof(Node));
         node->kind = ND_LVAR;

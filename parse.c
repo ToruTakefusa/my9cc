@@ -110,6 +110,7 @@ Node *stmt() {
         node->kind = ND_WHILE;
         expect("(");
         node->lhs = expr();
+        expect(")");
         node->rhs = stmt();
         return node;
     } else if (consume(TK_FOR)) {

@@ -39,12 +39,21 @@ void gen(Node *node) {
             printf("    ret\n");
             return;
         case ND_IF:
-            // Todo: elseの実装
             gen(node->lhs);
             printf("    pop  rax\n");
             printf("    cmp rax, 0\n");
-            printf("    je   .Lend%d\n", labelCount);
+            if (!node->els) {
+                // elseがない場合
+                printf("    je   .Lend%d\n", labelCount);
+            } else {
+                printf("    je    .Lelse%d\n", labelCount);
+            }
             gen(node->rhs);
+            if (node->els) {
+                printf("    jmp    .Lend%d\n", labelCount);
+                printf(".Lelse%d:\n", labelCount);
+                gen(node->els);
+            }
             printf(".Lend%d:\n", labelCount);
             labelCount++;
             return;

@@ -70,7 +70,21 @@ a = 3;
 c = a + b;
 return c;"
 # if elseのテスト
+assert 0 "
+if (0)
+return 1;
+else return 0;"
 
+assert 1 "
+if (0) return 0;
+else return 1;"
+
+assert 5 "
+a = 1;
+if (0)
+return 0;
+else b = 4;
+return a + b;"
 # whileのテスト
 
 # forのテスト

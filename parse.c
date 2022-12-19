@@ -103,7 +103,9 @@ Node *stmt() {
         expect(")");
         node->rhs = stmt();
 
-        if (consume(TK_ELSE)) node->rhs->lhs = stmt();
+        if (consume(TK_ELSE)) {
+            node->els = stmt();
+        }
         return node;
     } else if (consume(TK_WHILE)) {
         node = calloc(1, sizeof(Node));

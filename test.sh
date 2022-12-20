@@ -85,7 +85,20 @@ if (0)
 return 0;
 else b = 4;
 return a + b;"
+
 # whileのテスト
+assert 2 "
+a = 0;
+while (a < 2)
+a = a + 1;
+return a;
+"
+
+assert 1 "
+while (0)
+  return 0;
+return 1;
+"
 
 # forのテスト
 echo OK

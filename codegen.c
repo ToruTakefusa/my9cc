@@ -12,6 +12,7 @@ void gen_lval(Node *node) {
 }
 
 void gen(Node *node) {
+
     switch (node->kind) {
         case ND_NUM:
             printf("    push %d\n", node->val);
@@ -42,11 +43,11 @@ void gen(Node *node) {
             gen(node->lhs);
             printf("    pop  rax\n");
             printf("    cmp rax, 0\n");
-            if (!node->els) {
+            if (node->els) {
+                printf("    je    .Lelse%d\n", labelCount);
+            } else {
                 // elseがない場合
                 printf("    je   .Lend%d\n", labelCount);
-            } else {
-                printf("    je    .Lelse%d\n", labelCount);
             }
             gen(node->rhs);
             if (node->els) {
@@ -64,6 +65,26 @@ void gen(Node *node) {
             printf("    cmp rax, 0\n");
             printf("    je .Lend%d\n", labelCount);
             gen(node->rhs);
+            printf("    jmp .Lbegin%d\n", labelCount);
+            printf(".Lend%d:\n", labelCount);
+            labelCount++;
+            return;
+        case ND_FOR:
+            // 節がなかった場合のことを考える必要がある。
+            if (node->init) {
+                gen(node->init);
+            }
+            printf(".Lbegin%d:\n", labelCount);
+            if (node->cond) {
+                gen(node->cond);
+            }
+            printf("    pop rax\n");
+            printf("    cmp rax, 0\n");
+            printf("    je .Lend%d\n", labelCount);
+            gen(node->lhs);
+            if (node->loop) {
+                gen(node->loop);
+            }
             printf("    jmp .Lbegin%d\n", labelCount);
             printf(".Lend%d:\n", labelCount);
             labelCount++;

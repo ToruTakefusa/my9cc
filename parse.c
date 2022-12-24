@@ -116,9 +116,34 @@ Node *stmt() {
         node->rhs = stmt();
         return node;
     } else if (consume(TK_FOR)) {
-        // Todo: 実装
-        // token->nextで次の値をチェック
-        // consume_symbol()が使えるはず
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_FOR;
+        expect("(");
+        // 初期化式の処理
+        if (consume_symbol(";")) {
+            // 初期化式が存在しない
+            node->init = NULL;
+        } else {
+            // 初期化が存在する
+            node->init = expr();
+            expect(";");
+        }
+        // 条件式の処理
+        if (consume_symbol(";")) {
+            node->cond = NULL;
+        } else {
+            node->cond = expr();
+            expect(";");
+        }
+        // 継続式の処理
+        if (consume_symbol(")")) {
+            node->loop = NULL;
+        } else {
+            node->loop = expr();
+            expect(")");
+        }
+        node->lhs = stmt();
+        return node;
     } else if (consume(TK_RETURN)) {
         node = calloc(1, sizeof(Node));
         node->kind = ND_RETURN;

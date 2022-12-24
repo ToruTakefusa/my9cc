@@ -61,7 +61,10 @@ struct Node {
     NodeKind kind; // ノードの型
     Node *lhs; // 左辺
     Node *rhs; // 右辺
-    Node *els;
+    Node *els; // ifのelse節
+    Node *init; // for(init, cond, loop)
+    Node *cond; // 同上
+    Node *loop; // 同上
     int val;   // kindがND_NUMの場合のみ使う
     int offset; // kindがND_LVARの場合のみ使う
 };

@@ -101,4 +101,41 @@ return 1;
 "
 
 # forのテスト
+assert 0 "
+for (;;)
+return 0;
+"
+
+assert 1 "
+b = 0;
+for (a = 1 ; a < 2 ; a = a + 1)
+b = a + b;
+return b;
+"
+
+assert 3 "
+for (a = 1; a < 3; a = a + 1)
+b = 0;
+return a;
+"
+
+assert 3 "
+a = 0;
+for (; a < 3; a = a + 1)
+b = 0;
+return a;
+"
+assert 0 "
+a = 0;
+for (; a < 3; )
+a = a +1;
+return 0;
+"
+
+# 複合ケース
+#assert 3 "
+#a = 0;
+#for (; ; a = a + 1)
+#  if (a > 3) return a;
+#"
 echo OK

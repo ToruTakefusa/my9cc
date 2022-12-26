@@ -133,9 +133,16 @@ return 0;
 "
 
 # 複合ケース
-#assert 3 "
-#a = 0;
-#for (; ; a = a + 1)
-#  if (a > 3) return a;
-#"
+assert 4 "
+a = 0;
+for (; ; a = a + 1)
+  if (a > 3) return a;
+"
+
+assert 5 "
+a = 0;
+for (; ;)
+  if (a > 4) return a; else return 5;
+"
+
 echo OK

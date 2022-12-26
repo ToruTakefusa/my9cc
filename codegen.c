@@ -13,6 +13,10 @@ void gen_lval(Node *node) {
 
 void gen(Node *node) {
 
+    int elseCount = 0;
+    int beginCount = 0;
+    int endCount  = 0;
+
     switch (node->kind) {
         case ND_NUM:
             printf("    push %d\n", node->val);
@@ -40,54 +44,60 @@ void gen(Node *node) {
             printf("    ret\n");
             return;
         case ND_IF:
+            elseCount = labelCount;
+            endCount = labelCount;
+            labelCount++;
             gen(node->lhs);
             printf("    pop  rax\n");
             printf("    cmp rax, 0\n");
             if (node->els) {
-                printf("    je    .Lelse%d\n", labelCount);
+                printf("    je    .Lelse%d\n", elseCount);
             } else {
                 // elseがない場合
-                printf("    je   .Lend%d\n", labelCount);
+                printf("    je   .Lend%d\n", endCount);
             }
             gen(node->rhs);
             if (node->els) {
-                printf("    jmp    .Lend%d\n", labelCount);
-                printf(".Lelse%d:\n", labelCount);
+                printf("    jmp    .Lend%d\n", endCount);
+                printf(".Lelse%d:\n", elseCount);
                 gen(node->els);
             }
-            printf(".Lend%d:\n", labelCount);
-            labelCount++;
+            printf(".Lend%d:\n", endCount);
             return;
         case ND_WHILE:
-            printf(".Lbegin%d:\n", labelCount);
+            beginCount = labelCount;
+            endCount = labelCount;
+            labelCount++;
+            printf(".Lbegin%d:\n", beginCount);
             gen(node->lhs);
             printf("    pop rax\n");
             printf("    cmp rax, 0\n");
-            printf("    je .Lend%d\n", labelCount);
+            printf("    je .Lend%d\n", endCount);
             gen(node->rhs);
-            printf("    jmp .Lbegin%d\n", labelCount);
-            printf(".Lend%d:\n", labelCount);
-            labelCount++;
+            printf("    jmp .Lbegin%d\n", beginCount);
+            printf(".Lend%d:\n", endCount);
             return;
         case ND_FOR:
             // 節がなかった場合のことを考える必要がある。
+            beginCount = labelCount;
+            endCount = labelCount;
+            labelCount++;
             if (node->init) {
                 gen(node->init);
             }
-            printf(".Lbegin%d:\n", labelCount);
+            printf(".Lbegin%d:\n", beginCount);
             if (node->cond) {
                 gen(node->cond);
             }
             printf("    pop rax\n");
             printf("    cmp rax, 0\n");
-            printf("    je .Lend%d\n", labelCount);
+            printf("    je .Lend%d\n", endCount);
             gen(node->lhs);
             if (node->loop) {
                 gen(node->loop);
             }
-            printf("    jmp .Lbegin%d\n", labelCount);
-            printf(".Lend%d:\n", labelCount);
-            labelCount++;
+            printf("    jmp .Lbegin%d\n", beginCount);
+            printf(".Lend%d:\n", endCount);
             return;
     }
 

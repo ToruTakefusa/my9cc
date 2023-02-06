@@ -144,6 +144,37 @@ for (; ;)
   if (a > 4) return a; else return 5;
 "
 
+# Block
 assert 3 "{a = 3;}"
 
+assert 5 "
+a = 0;
+if (10 < 5) {
+    a = a + 1;
+    return a;
+}
+return 5;
+"
+
+#assert 2 "
+#a = 1;
+#if (10 >  5) {
+#  a = a + 1;
+#  return a;
+#}
+#return 0;
+#"
+
+#assert 10 "a = 0;
+#if (a >5) {
+#  return a;
+#} else {
+#  return 10;
+#}
+#"
+
+# Todo: forでblockの場合の追加
+
+
+# Todo: whileでblockの場合の追加
 echo OK

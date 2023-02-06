@@ -12,10 +12,18 @@ void gen_lval(Node *node) {
 }
 
 void gen(Node *node) {
+    if (!node) return;
 
     int elseCount = 0;
     int beginCount = 0;
-    int endCount  = 0;
+    int endCount = 0;
+
+    if (node->stmt) {
+        for (int i = 0; i < node->stmt->length; i++) {
+            gen(getItem(node->stmt, i));
+            return;
+        }
+    }
 
     switch (node->kind) {
         case ND_NUM:

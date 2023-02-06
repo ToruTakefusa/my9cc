@@ -53,20 +53,31 @@ typedef enum {
     ND_IF,  // if
     ND_WHILE, // while
     ND_FOR,  // for
+    ND_BLOCK, // Block
 } NodeKind;
 
+typedef struct Vector Vector;
+
 typedef struct Node Node;
+
+struct Vector {
+    int size;
+    int length;
+    Node *data;
+};
 
 struct Node {
     NodeKind kind; // ノードの型
     Node *lhs; // 左辺
     Node *rhs; // 右辺
+    // Todo: Vectorにする
     Node *els; // ifのelse節
     Node *init; // for(init, cond, loop)
     Node *cond; // 同上
     Node *loop; // 同上
     int val;   // kindがND_NUMの場合のみ使う
     int offset; // kindがND_LVARの場合のみ使う
+    Vector *stmt;
 };
 
 typedef struct FunctionData FunctionData;
@@ -111,5 +122,22 @@ Node *unary();
 Node *primary();
 
 void program();
+
+Vector *initVector();
+
+Vector *addItem(Vector *vector, Node *item);
+
+Node *getItem(Vector *vector, int i);
+
+Node *new_node_kind(NodeKind kind);
+
+Node *new_node(NodeKind kind, Node *lhs, Node *rhs);
+
+Node *new_node_num(int val);
+
+// For Debug
+void printNode(Node *node);
+
+char* printNodeKind(NodeKind kind);
 
 #endif //INC_9CC_9CC_H

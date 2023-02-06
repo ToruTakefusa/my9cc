@@ -70,59 +70,42 @@ LVar *find_lvar(Token *tok) {
     return NULL;
 }
 
-Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = kind;
-    node->lhs = lhs;
-    node->rhs = rhs;
-    return node;
-}
-
-Node *new_node_num(int val) {
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_NUM;
-    node->val = val;
-    return node;
-}
-
 void program() {
     int i = 0;
-    while (!at_eof())
+    while (!at_eof()) {
         code[i++] = stmt();
+    }
     code[i] = NULL;
 }
 
 Node *stmt() {
-    Node *node;
+    Node *node = NULL;
 
     if (consume(TK_IF)) {
-        node = calloc(1, sizeof(Node));
-        node->kind = ND_IF;
+        node = new_node_kind(ND_IF);
         expect("(");
         node->lhs = expr();
         expect(")");
         node->rhs = stmt();
-
+        // Todo: stmtをVectorにする
         if (consume(TK_ELSE)) {
             node->els = stmt();
         }
         return node;
     } else if (consume(TK_WHILE)) {
-        node = calloc(1, sizeof(Node));
-        node->kind = ND_WHILE;
+        node = new_node_kind(ND_WHILE);
         expect("(");
         node->lhs = expr();
         expect(")");
         node->rhs = stmt();
         return node;
+
     } else if (consume(TK_FOR)) {
-        node = calloc(1, sizeof(Node));
-        node->kind = ND_FOR;
+        node = new_node_kind(ND_FOR);
         expect("(");
         // 初期化式の処理
         if (consume_symbol(";")) {
             // 初期化式が存在しない
-            node->init = NULL;
         } else {
             // 初期化が存在する
             node->init = expr();
@@ -130,14 +113,12 @@ Node *stmt() {
         }
         // 条件式の処理
         if (consume_symbol(";")) {
-            node->cond = NULL;
         } else {
             node->cond = expr();
             expect(";");
         }
         // 継続式の処理
         if (consume_symbol(")")) {
-            node->loop = NULL;
         } else {
             node->loop = expr();
             expect(")");
@@ -145,15 +126,24 @@ Node *stmt() {
         node->lhs = stmt();
         return node;
     } else if (consume(TK_RETURN)) {
-        node = calloc(1, sizeof(Node));
-        node->kind = ND_RETURN;
-        node->lhs = expr();
+        node = new_node(ND_RETURN, expr(), NULL);
+        expect(";");
+        return node;
+    } else if (consume_symbol("{")) {
+        // block
+        node = new_node_kind(ND_BLOCK);
+        Vector *vector = initVector();
+        while(!consume_symbol("}")) {
+            addItem(vector,stmt());
+        }
+        node->stmt = vector;
+        return node;
     } else {
+        // その他
         node = expr();
+        expect(";");
+        return node;
     }
-
-    expect(";");
-    return node;
 }
 
 Node *expr() {
@@ -243,8 +233,7 @@ Node *primary() {
 
     Token *tok = consume(TK_IDENT);
     if (tok) {
-        Node *node = calloc(1, sizeof(Node));
-        node->kind = ND_LVAR;
+        Node *node = new_node_kind(ND_LVAR);
 
         LVar *lvar = find_lvar(tok);
         if (lvar) {

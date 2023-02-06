@@ -138,11 +138,12 @@ a = 0;
 for (; ; a = a + 1)
   if (a > 3) return a;
 "
-
 assert 5 "
 a = 0;
 for (; ;)
   if (a > 4) return a; else return 5;
 "
+
+assert 3 "{a = 3;}"
 
 echo OK

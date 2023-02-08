@@ -24,10 +24,21 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
     node->loop = NULL;
     node->cond = NULL;
 
-    Vector *vector = initVector();
-    addItem(vector, lhs);
-    node->lhs = vector;
-    node->rhs = rhs;
+    if (lhs) {
+        Vector *left = initVector();
+        addItem(left, lhs);
+        node->lhs = left;
+    } else {
+        node->lhs = NULL;
+    }
+
+    if (rhs) {
+        Vector *right = initVector();
+        addItem(right, rhs);
+        node->rhs = right;
+    } else {
+        node->rhs = NULL;
+    }
     node->offset = 0;
 
     return node;

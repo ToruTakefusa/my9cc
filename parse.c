@@ -84,11 +84,17 @@ Node *stmt() {
     if (consume(TK_IF)) {
         node = new_node_kind(ND_IF);
         expect("(");
-        Vector *leftVector = initVector();
-        addItem(leftVector, expr());
-        node->lhs = leftVector;
+
+        Vector *left = initVector();
+        addItem(left, expr());
+        node->lhs = left;
+
         expect(")");
-        node->rhs = stmt();
+
+        Vector *right = initVector();
+        addItem(right, stmt());
+        node->rhs = right;
+
         if (consume(TK_ELSE)) {
             node->els = stmt();
         }
@@ -96,11 +102,17 @@ Node *stmt() {
     } else if (consume(TK_WHILE)) {
         node = new_node_kind(ND_WHILE);
         expect("(");
-        Vector *leftVector = initVector();
-        addItem(leftVector, expr());
-        node->lhs = leftVector;
+
+        Vector *left = initVector();
+        addItem(left, expr());
+        node->lhs = left;
+
         expect(")");
-        node->rhs = stmt();
+
+        Vector *right = initVector();
+        addItem(right, stmt());
+        node->rhs = right;
+
         return node;
 
     } else if (consume(TK_FOR)) {
@@ -126,9 +138,9 @@ Node *stmt() {
             node->loop = expr();
             expect(")");
         }
-        Vector *leftVector = initVector();
-        addItem(leftVector, stmt());
-        node->lhs = leftVector;
+        Vector *left = initVector();
+        addItem(left, stmt());
+        node->lhs = left;
         return node;
     } else if (consume(TK_RETURN)) {
         node = new_node(ND_RETURN, expr(), NULL);
@@ -157,8 +169,9 @@ Node *expr() {
 
 Node *assign() {
     Node *node = equality();
-    if (consume_symbol("="))
-        node = new_node(ND_ASSIGN, node ,assign());
+    if (consume_symbol("=")) {
+        node = new_node(ND_ASSIGN, node, assign());
+    }
     return node;
 }
 

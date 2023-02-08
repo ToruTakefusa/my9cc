@@ -36,10 +36,17 @@ void gen(Node *node) {
             printf("    push rax\n");
             return;
         case ND_ASSIGN:
-            for (int i = 0; i < node->lhs->length; i++) {
-                gen_lval(getItem(node->lhs, i));
+            if (node->lhs) {
+                for (int i = 0; i < node->lhs->length; i++) {
+                    gen_lval(getItem(node->lhs, i));
+                }
             }
-            gen(node->rhs);
+
+            if (node->rhs) {
+                for (int i = 0; i < node->rhs->length; i++) {
+                    gen(getItem(node->rhs, i));
+                }
+            }
 
             printf("    pop rdi\n");
             printf("    pop rax\n");
@@ -47,9 +54,12 @@ void gen(Node *node) {
             printf("    push rdi\n");
             return;
         case ND_RETURN:
-            for (int i = 0; i < node->lhs->length; i++) {
-                gen(getItem(node->lhs, i));
+            if (node->lhs) {
+                for (int i = 0; i < node->lhs->length; i++) {
+                    gen(getItem(node->lhs, i));
+                }
             }
+
             printf("    pop rax\n");
             printf("    mov rsp, rbp\n");
             printf("    pop rbp\n");
@@ -59,18 +69,28 @@ void gen(Node *node) {
             elseCount = labelCount;
             endCount = labelCount;
             labelCount++;
-            for (int i = 0; i < node->lhs->length; i++) {
-                gen(getItem(node->lhs, i));
+            if (node->lhs) {
+                for (int i = 0; i < node->lhs->length; i++) {
+                    gen(getItem(node->lhs, i));
+                }
             }
+
             printf("    pop  rax\n");
             printf("    cmp rax, 0\n");
+
             if (node->els) {
                 printf("    je    .Lelse%d\n", elseCount);
             } else {
                 // elseがない場合
                 printf("    je   .Lend%d\n", endCount);
             }
-            gen(node->rhs);
+
+            if (node->rhs) {
+                for (int i = 0; i < node->rhs->length; i++) {
+                    gen(getItem(node->rhs, i));
+                }
+            }
+
             if (node->els) {
                 printf("    jmp    .Lend%d\n", endCount);
                 printf(".Lelse%d:\n", elseCount);
@@ -83,13 +103,23 @@ void gen(Node *node) {
             endCount = labelCount;
             labelCount++;
             printf(".Lbegin%d:\n", beginCount);
-            for (int i = 0; i < node->lhs->length; i++) {
-                gen(getItem(node->lhs, i));
+
+            if (node->lhs) {
+                for (int i = 0; i < node->lhs->length; i++) {
+                    gen(getItem(node->lhs, i));
+                }
             }
+
             printf("    pop rax\n");
             printf("    cmp rax, 0\n");
             printf("    je .Lend%d\n", endCount);
-            gen(node->rhs);
+
+            if (node->rhs) {
+                for (int i = 0; i < node->rhs->length; i++) {
+                    gen(getItem(node->rhs, i));
+                }
+            }
+
             printf("    jmp .Lbegin%d\n", beginCount);
             printf(".Lend%d:\n", endCount);
             return;
@@ -108,9 +138,13 @@ void gen(Node *node) {
             printf("    pop rax\n");
             printf("    cmp rax, 0\n");
             printf("    je .Lend%d\n", endCount);
-            for (int i = 0; i < node->lhs->length; i++) {
-                gen(getItem(node->lhs, i));
+
+            if (node->lhs) {
+                for (int i = 0; i < node->lhs->length; i++) {
+                    gen(getItem(node->lhs, i));
+                }
             }
+
             if (node->loop) {
                 gen(node->loop);
             }
@@ -119,10 +153,17 @@ void gen(Node *node) {
             return;
     }
 
-    for (int i = 0; i < node->lhs->length; i++) {
-        gen(getItem(node->lhs, i));
+    if (node->lhs) {
+        for (int i = 0; i < node->lhs->length; i++) {
+            gen(getItem(node->lhs, i));
+        }
     }
-    gen(node->rhs);
+
+    if (node->rhs) {
+        for (int i = 0; i < node->rhs->length; i++) {
+            gen(getItem(node->rhs, i));
+        }
+    }
 
     printf("    pop rdi\n");
     printf("    pop rax\n");

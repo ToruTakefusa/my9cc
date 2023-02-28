@@ -68,7 +68,7 @@ struct Vector {
 
 struct Node {
     NodeKind kind; // ノードの型
-    Vector *lhs; // 左辺
+    Node *lhs; // 左辺
     Node *rhs; // 右辺
     // Todo: Vectorにする
     Node *els; // ifのelse節

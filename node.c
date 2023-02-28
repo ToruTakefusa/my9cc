@@ -23,10 +23,7 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
     node->init = NULL;
     node->loop = NULL;
     node->cond = NULL;
-
-    Vector *vector = initVector();
-    addItem(vector, lhs);
-    node->lhs = vector;
+    node->lhs = lhs;
     node->rhs = rhs;
     node->offset = 0;
 

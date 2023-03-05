@@ -42,18 +42,19 @@ typedef enum {
     ND_SUB, // -
     ND_MUL, // *
     ND_DIV, // /
-    ND_ASSIGN, // =
-    ND_LVAR, // ローカル変数
     ND_EQ, // ==
     ND_NE, // !=
     ND_LT, // <
     ND_LE, // <=
-    ND_NUM, // 整数
+    ND_ASSIGN, // =
     ND_RETURN, // return
     ND_IF,  // if
     ND_WHILE, // while
     ND_FOR,  // for
     ND_BLOCK, // Block
+    ND_EXPR_STMT, // Expression statement
+    ND_LVAR, // ローカル変数
+    ND_NUM, // 整数
 } NodeKind;
 
 typedef struct Vector Vector;

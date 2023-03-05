@@ -81,7 +81,11 @@ void program() {
 Node *stmt() {
     Node *node = NULL;
 
-    if (consume(TK_IF)) {
+    if (consume(TK_RETURN)) {
+        node = new_node(ND_RETURN, expr(), NULL);
+        expect(";");
+        return node;
+    } else if (consume(TK_IF)) {
         node = new_node_kind(ND_IF);
         expect("(");
         node->cond = expr();
@@ -123,10 +127,6 @@ Node *stmt() {
             expect(")");
         }
         node->then = stmt();
-        return node;
-    } else if (consume(TK_RETURN)) {
-        node = new_node(ND_RETURN, expr(), NULL);
-        expect(";");
         return node;
     } else if (consume_symbol("{")) {
         // block

@@ -12,19 +12,7 @@ void gen_lval(Node *node) {
 }
 
 void gen(Node *node) {
-    if (!node) return;
-
-    int elseCount = 0;
-    int beginCount = 0;
-    int endCount = 0;
-
-    if (node->stmt) {
-        for (int i = 0; i < node->stmt->length; i++) {
-            gen(getItem(node->stmt, i));
-            return;
-        }
-    }
-
+    int count = 0;
     switch (node->kind) {
         case ND_NUM:
             printf("    push %d\n", node->val);
@@ -44,68 +32,66 @@ void gen(Node *node) {
             printf("    mov [rax], rdi\n");
             printf("    push rdi\n");
             return;
+        case ND_IF:
+            count = labelCount++;
+            gen(node->cond);
+            printf("    pop  rax\n");
+            printf("    cmp rax, 0\n");
+            if (node->els) {
+                printf("    je    .Lelse%d\n", count);
+            } else {
+                // elseがない場合
+                printf("    je   .Lend%d\n", count);
+            }
+            gen(node->then);
+            if (node->els) {
+                printf("    jmp    .Lend%d\n", count);
+                printf(".Lelse%d:\n", count);
+                gen(node->els);
+            }
+            printf(".Lend%d:\n", count);
+            return;
+        case ND_WHILE:
+            count = labelCount++;
+            printf(".Lbegin%d:\n", count);
+            gen(node->cond);
+            printf("    pop rax\n");
+            printf("    cmp rax, 0\n");
+            printf("    je .Lend%d\n", count);
+            gen(node->then);
+            printf("    jmp .Lbegin%d\n", count);
+            printf(".Lend%d:\n", count);
+            return;
+        case ND_FOR:
+            count = labelCount++;
+            if (node->init) {
+                gen(node->init);
+            }
+            printf(".Lbegin%d:\n", count);
+            if (node->cond) {
+                gen(node->cond);
+            }
+            printf("    pop rax\n");
+            printf("    cmp rax, 0\n");
+            printf("    je .Lend%d\n", count);
+            gen(node->then);
+            if (node->loop) {
+                gen(node->loop);
+            }
+            printf("    jmp .Lbegin%d\n", count);
+            printf(".Lend%d:\n", count);
+            return;
+        case ND_BLOCK:
+            for (int i = 0; i < node->stmt->length; i++) {
+                gen(getItem(node->stmt, i));
+                return;
+            }
         case ND_RETURN:
             gen(node->lhs);
             printf("    pop rax\n");
             printf("    mov rsp, rbp\n");
             printf("    pop rbp\n");
             printf("    ret\n");
-            return;
-        case ND_IF:
-            elseCount = labelCount;
-            endCount = labelCount;
-            labelCount++;
-            gen(node->lhs);
-            printf("    pop  rax\n");
-            printf("    cmp rax, 0\n");
-            if (node->els) {
-                printf("    je    .Lelse%d\n", elseCount);
-            } else {
-                // elseがない場合
-                printf("    je   .Lend%d\n", endCount);
-            }
-            gen(node->rhs);
-            if (node->els) {
-                printf("    jmp    .Lend%d\n", endCount);
-                printf(".Lelse%d:\n", elseCount);
-                gen(node->els);
-            }
-            printf(".Lend%d:\n", endCount);
-            return;
-        case ND_WHILE:
-            beginCount = labelCount;
-            endCount = labelCount;
-            labelCount++;
-            printf(".Lbegin%d:\n", beginCount);
-            gen(node->lhs);
-            printf("    pop rax\n");
-            printf("    cmp rax, 0\n");
-            printf("    je .Lend%d\n", endCount);
-            gen(node->rhs);
-            printf("    jmp .Lbegin%d\n", beginCount);
-            printf(".Lend%d:\n", endCount);
-            return;
-        case ND_FOR:
-            // 節がなかった場合のことを考える必要がある。
-            beginCount = labelCount;
-            endCount = labelCount;
-            labelCount++;
-            if (node->init) {
-                gen(node->init);
-            }
-            printf(".Lbegin%d:\n", beginCount);
-            if (node->cond) {
-                gen(node->cond);
-            }
-            printf("    pop rax\n");
-            printf("    cmp rax, 0\n");
-            printf("    je .Lend%d\n", endCount);
-            gen(node->lhs);
-            if (node->loop) {
-                gen(node->loop);
-            }
-            printf("    jmp .Lbegin%d\n", beginCount);
-            printf(".Lend%d:\n", endCount);
             return;
     }
 

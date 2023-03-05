@@ -84,10 +84,9 @@ Node *stmt() {
     if (consume(TK_IF)) {
         node = new_node_kind(ND_IF);
         expect("(");
-        node->lhs = expr();
+        node->cond = expr();
         expect(")");
-        node->rhs = stmt();
-        // Todo: stmtをVectorにする
+        node->then = stmt();
         if (consume(TK_ELSE)) {
             node->els = stmt();
         }
@@ -95,9 +94,9 @@ Node *stmt() {
     } else if (consume(TK_WHILE)) {
         node = new_node_kind(ND_WHILE);
         expect("(");
-        node->lhs = expr();
+        node->cond = expr();
         expect(")");
-        node->rhs = stmt();
+        node->then = stmt();
         return node;
 
     } else if (consume(TK_FOR)) {
@@ -123,7 +122,7 @@ Node *stmt() {
             node->loop = expr();
             expect(")");
         }
-        node->lhs = stmt();
+        node->then = stmt();
         return node;
     } else if (consume(TK_RETURN)) {
         node = new_node(ND_RETURN, expr(), NULL);

@@ -144,6 +144,14 @@ for (; ;)
   if (a > 4) return a; else return 5;
 "
 
-assert 3 "{return a = 3;}"
+# Block
+assert 2 "
+a = 1;
+if (10 >  5) {
+  a = a + 1;
+  return a;
+}
+return 0;
+"
 
 echo OK

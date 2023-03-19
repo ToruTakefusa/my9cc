@@ -116,12 +116,14 @@ Node *stmt() {
         }
         // 条件式の処理
         if (consume_symbol(";")) {
+            // 条件式が存在しない
         } else {
             node->cond = expr();
             expect(";");
         }
         // 継続式の処理
         if (consume_symbol(")")) {
+            // 継続式が存在しない
         } else {
             node->loop = expr();
             expect(")");

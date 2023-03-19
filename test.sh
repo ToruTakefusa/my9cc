@@ -132,12 +132,13 @@ a = a +1;
 return 0;
 "
 
-# 複合ケース
+## 複合ケース
 assert 4 "
 a = 0;
 for (; ; a = a + 1)
   if (a > 3) return a;
 "
+
 assert 5 "
 a = 0;
 for (; ;)
@@ -147,7 +148,7 @@ for (; ;)
 # Block
 assert 2 "
 a = 1;
-if (10 >  5) {
+if (10 > 5) {
   a = a + 1;
   return a;
 }

@@ -70,10 +70,10 @@ void gen(Node *node) {
             printf(".Lbegin%d:\n", count);
             if (node->cond) {
                 gen(node->cond);
+                printf("    pop rax\n");
+                printf("    cmp rax, 0\n");
+                printf("    je .Lend%d\n", count);
             }
-            printf("    pop rax\n");
-            printf("    cmp rax, 0\n");
-            printf("    je .Lend%d\n", count);
             gen(node->then);
             if (node->loop) {
                 gen(node->loop);
@@ -84,14 +84,12 @@ void gen(Node *node) {
         case ND_BLOCK:
             for (int i = 0; i < node->stmt->length; i++) {
                 gen(getItem(node->stmt, i));
-                return;
             }
+            return;
         case ND_RETURN:
             gen(node->lhs);
             printf("    pop rax\n");
-            printf("    mov rsp, rbp\n");
-            printf("    pop rbp\n");
-            printf("    ret\n");
+            printf("    jmp .Lreturn\n");
             return;
     }
 

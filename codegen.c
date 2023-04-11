@@ -91,6 +91,10 @@ void gen(Node *node) {
             printf("    pop rax\n");
             printf("    jmp .Lreturn\n");
             return;
+        case ND_FUNCTION_CALL:
+            printf("    call %s\n", node->name);
+            //printf("    call foo\n");
+            return;
     }
 
     gen(node->lhs);

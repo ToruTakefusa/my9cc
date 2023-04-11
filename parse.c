@@ -234,6 +234,22 @@ Node *primary() {
 
     Token *tok = consume(TK_IDENT);
     if (tok) {
+        if (consume_symbol("(")) {
+            // 関数の場合
+            Node *node = new_node_kind(ND_FUNCTION_CALL);
+            // 関数名の取得
+            char* tmp = tok->str;
+            size_t count = 0;
+            while(*tmp != '(') {
+                tmp++;
+                count = count + 1;
+            }
+            node->name = (char*)malloc(sizeof(char) * count);
+            strncpy(node->name, tok->str, count);
+            // Todo: 引数の読み込み
+            consume_symbol(")");
+            return node;
+        }
         Node *node = new_node_kind(ND_LVAR);
 
         LVar *lvar = find_lvar(tok);

@@ -55,6 +55,7 @@ typedef enum {
     ND_EXPR_STMT, // Expression statement
     ND_LVAR, // ローカル変数
     ND_NUM, // 整数
+    ND_FUNCTION_CALL, // 関数呼び出し
 } NodeKind;
 
 typedef struct Vector Vector;
@@ -79,6 +80,7 @@ struct Node {
     int val;   // kindがND_NUMの場合のみ使う
     int offset; // kindがND_LVARの場合のみ使う
     Vector *stmt;
+    char *name; // 関数名
 };
 
 typedef struct FunctionData FunctionData;

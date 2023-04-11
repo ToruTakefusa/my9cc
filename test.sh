@@ -4,7 +4,7 @@ assert() {
     input="$2"
 
     ./9cc "$input" > tmp.s
-    cc -o tmp tmp.s
+    cc tmp.s foo.o -o tmp
     ./tmp
     actual="$?"
 
@@ -152,6 +152,12 @@ if (10 > 5) {
   a = a + 1;
   return a;
 }
+return 0;
+"
+
+# 関数呼び出し
+assert 0 "
+foo();
 return 0;
 "
 

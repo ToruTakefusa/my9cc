@@ -92,9 +92,25 @@ void gen(Node *node) {
             printf("    jmp .Lreturn\n");
             return;
         case ND_FUNCTION_CALL:
+            count = labelCount++;
+            printf("    mov rax, rsp\n");
+            // RSPが16の倍数かチェック
+            printf("    and rax, 15\n");
+            printf("    jnz .Lfunc%d\n", count);
+            // RSPが16の倍数の場合
+            printf("    mov rax, 0\n");
             printf("    call %s\n", node->name);
             printf("    push rax\n");
-            //printf("    call foo\n");
+            printf("    jmp .Lend%d\n", count);
+            // RSPが16の倍数以外の場合
+            printf(".Lfunc%d:\n", count);
+            printf("    sub rsp, 8\n");
+            // RSPが16の倍数になるよう調整(8byteごとしか変動しない)
+            printf("    mov rax, 0\n");
+            printf("    call %s\n", node->name);
+            printf("    add rsp, 8\n");
+            printf(".Lend%d:\n", count);
+            printf("    push rax\n");
             return;
     }
 

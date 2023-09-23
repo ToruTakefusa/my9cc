@@ -70,17 +70,18 @@ struct Vector {
 
 struct Node {
     NodeKind kind; // ノードの型
-    Node *lhs; // 左辺
-    Node *rhs; // 右辺
-    Node *cond; // ifの条件、whileの条件、forの継続条件
-    Node *then; // ifのthen節、whileのthen, forのthen
-    Node *els; // ifのelse節
-    Node *init; // for(init, cond, loop)
-    Node *loop; // 同上
-    int val;   // kindがND_NUMの場合のみ使う
-    int offset; // kindがND_LVARの場合のみ使う
+    Node *lhs;     // 左辺
+    Node *rhs;     // 右辺
+    Node *cond;    // ifの条件、whileの条件、forの継続条件
+    Node *then;    // ifのthen節、whileのthen, forのthen
+    Node *els;     // ifのelse節
+    Node *init;    // for(init, cond, loop)
+    Node *loop;    // 同上
+    int val;       // kindがND_NUMの場合のみ使う
+    int offset;    // kindがND_LVARの場合のみ使う
+    Node *arg;       // 関数の引数。kindがND_FUNCTION_CALLの場合のみ使う
     Vector *stmt;
-    char *name; // 関数名
+    char *name;    // 関数名
 };
 
 typedef struct FunctionData FunctionData;

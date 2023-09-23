@@ -98,7 +98,11 @@ void gen(Node *node) {
             printf("    and rax, 15\n");
             printf("    jnz .Lfunc%d\n", count);
             // RSPが16の倍数の場合
-            printf("    mov rax, 0\n");
+            if (node->arg == NULL) {
+                printf("    mov rax, 0\n");
+            } else {
+                printf("    mov rax, %d\n", node->arg->val);
+            }
             printf("    call %s\n", node->name);
             printf("    push rax\n");
             printf("    jmp .Lend%d\n", count);
@@ -107,6 +111,11 @@ void gen(Node *node) {
             printf("    sub rsp, 8\n");
             // RSPが16の倍数になるよう調整(8byteごとしか変動しない)
             printf("    mov rax, 0\n");
+            if (node->arg == NULL) {
+                printf("    mov rax, 0\n");
+            } else {
+                printf("    mov rax, %d\n", node->arg->val);
+            }
             printf("    call %s\n", node->name);
             printf("    add rsp, 8\n");
             printf(".Lend%d:\n", count);

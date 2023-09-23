@@ -11,6 +11,7 @@ Node *new_node_kind(NodeKind kind) {
     node->lhs = NULL;
     node->rhs = NULL;
     node->offset = 0;
+    node->arg = NULL;
 
     return node;
 }
@@ -26,7 +27,7 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
     node->lhs = lhs;
     node->rhs = rhs;
     node->offset = 0;
-
+    node->arg = NULL;
     return node;
 }
 
@@ -41,6 +42,6 @@ Node *new_node_num(int val) {
     node->lhs = NULL;
     node->rhs = NULL;
     node->offset = 0;
-
+    node->arg = NULL;
     return node;
 }

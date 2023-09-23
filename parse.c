@@ -56,6 +56,15 @@ int expect_number() {
     return val;
 }
 
+// 次のトークンが数値の場合、trueを返す。
+// それ以外の場合は、falseを返す。
+bool is_number() {
+    if (token->kind == TK_NUM) {
+        return true;
+    }
+    return false;
+}
+
 bool at_eof() {
     return token->kind == TK_EOF;
 }
@@ -238,6 +247,13 @@ Node *primary() {
             // 関数の場合
             Node *node = new_node_kind(ND_FUNCTION_CALL);
             node->name = strndup(tok->str, tok->len);
+
+            if (is_number()) {
+                // Todo: 引数が2つ以上6つ以下の場合のサポート
+                // 引数が存在する場合(引数は6つしかサポートしない)
+                // primary, primaryのはず
+                node->arg = new_node_num(expect_number());
+            }
             consume_symbol(")");
             return node;
         }

@@ -93,8 +93,10 @@ void gen(Node *node) {
             return;
         case ND_FUNCTION_CALL:
             count = labelCount++;
-            if (node->arg != NULL) {
-                printf("    mov rdi, %d\n", node->arg->val);
+            if (node->arg) {
+                // Todo: 引数が0~6までの対応
+                gen(node->arg);
+                printf("    pop rdi\n");
             }
             printf("    mov rax, rsp\n");
             // RSPが16の倍数かチェック

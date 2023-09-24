@@ -169,9 +169,8 @@ a = foo1(1);
 return a;
 "
 
-## Todo 引数が関数だった場合のサポート
-#assert 1 "
-#return foo1(foo1(1));
-#"
+assert 1 "
+return foo1(foo1(1));
+"
 
 echo OK

@@ -156,28 +156,22 @@ return 0;
 "
 
 # 関数呼び出し
-assert 0 "
-foo();
-return 0;
+assert 5 "
+return return5();
 "
-
-assert 1 "
-return foo1(1);
-"
-
-# Todo 引数が関数だった場合のサポート
-#assert 1 "
-#return foo1(foo1(1));
-#"
 
 assert 2 "
 return foo1(2);
 "
 
-# Todo: 変数に関数の値を代入する場合のサポート
+assert 1 "
+a = foo1(1);
+return a;
+"
+
+## Todo 引数が関数だった場合のサポート
 #assert 1 "
-#a = foo1(1);
-#return a;
+#return foo1(foo1(1));
 #"
 
 echo OK

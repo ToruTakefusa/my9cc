@@ -1,5 +1,5 @@
-int foo() {
-  printf("OK\n");
+int return5() {
+  return 5;
 }
 
 int foo1(int a) {

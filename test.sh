@@ -165,10 +165,14 @@ assert 1 "
 return foo1(1);
 "
 
-# Todo: 引数が関数の場合のサポート
+# Todo 引数が関数だった場合のサポート
 #assert 1 "
 #return foo1(foo1(1));
 #"
+
+assert 2 "
+return foo1(2);
+"
 
 # Todo: 変数に関数の値を代入する場合のサポート
 #assert 1 "

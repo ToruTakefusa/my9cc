@@ -79,7 +79,7 @@ struct Node {
     Node *loop;    // 同上
     int val;       // kindがND_NUMの場合のみ使う
     int offset;    // kindがND_LVARの場合のみ使う
-    Node *arg;       // 関数の引数。kindがND_FUNCTION_CALLの場合のみ使う
+    Vector *args;       // 関数の引数。kindがND_FUNCTION_CALLの場合のみ使う
     Vector *stmt;
     char *name;    // 関数名
 };

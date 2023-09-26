@@ -259,13 +259,18 @@ Node *primary() {
             Node *node = new_node_kind(ND_FUNCTION_CALL);
             node->name = strndup(tok->str, tok->len);
 
+            // 引数が存在しない場合
             if (consume_symbol(")")) {
                 return node;
             }
             // Todo: 引数が2つ以上6つ以下の場合のサポート
             // 引数が存在する場合(引数は6つしかサポートしない)
             // primary, primaryのはず
-            node->arg = add();
+            node->args = initVector();
+            addItem(node->args,add());
+            while(consume_symbol(",")) {
+                addItem(node->args, add());
+            }
             consume_symbol(")");
             return node;
         }

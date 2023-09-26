@@ -7,7 +7,9 @@ int foo1(int a) {
 }
 
 int foo2(int a, int b) {
-    printf("OK\n");
-    printf("引数aの値は%d\n", a);
-    printf("引数bの値は%d\n", b);
+    return a + b;
+}
+
+int foo6(int a, int b, int c, int d, int e, int f) {
+    return a * b + c + d + e + f;
 }

@@ -173,4 +173,11 @@ assert 1 "
 return foo1(foo1(1));
 "
 
+assert 3 "
+return foo2(1, 2);
+"
+
+assert 16 "
+return foo6(3, 2, 1, 2, 3, 4);
+"
 echo OK

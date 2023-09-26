@@ -25,9 +25,12 @@ void printNode(Node *node) {
 
     if (node->kind == ND_FUNCTION_CALL) {
         printf("関数名は%sです。\n", node->name);
-        if (node->arg) {
+        if (node->args) {
+            printf("引数は%d個存在します。\n", node->args->length);
             printf("引数のNodeを出力します。\n");
-            printNode(node->arg);
+            for (int i = 0 ; i < node->args->length; i++) {
+                printNode(getItem(node->args, i));
+            }
         }
     }
     printNode(node->lhs);

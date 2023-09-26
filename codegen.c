@@ -1,6 +1,8 @@
 #include "9cc.h"
 
 int labelCount = 0;
+// 関数呼び出し時に、引数を格納するレジスタ
+char* argRegister[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 
 void gen_lval(Node *node) {
     if (node->kind != ND_LVAR)
@@ -93,10 +95,13 @@ void gen(Node *node) {
             return;
         case ND_FUNCTION_CALL:
             count = labelCount++;
-            if (node->arg) {
-                // Todo: 引数が0~6までの対応
-                gen(node->arg);
-                printf("    pop rdi\n");
+            if (node->args) {
+                // 引数が存在する場合
+                // Fixme ダサい
+                for (int i = 0; i < node->args->length; i++) {
+                    gen(getItem(node->args,i));
+                    printf("    pop %s\n", argRegister[i]);
+                }
             }
             printf("    mov rax, rsp\n");
             // RSPが16の倍数かチェック

@@ -121,6 +121,13 @@ void gen(Node *node) {
             printf(".Lend%d:\n", count);
             printf("    push rax\n");
             return;
+        case ND_FUNCTION_DEF:
+            // Todo: レジスタの初期化(一部は必要なはず)
+            // Todo: 関数から戻る際に、レジスタのリセット
+            for (int i = 0; i < node->stmt->length; i++) {
+                gen(getItem(node->stmt, i));
+            }
+            return;
     }
 
     gen(node->lhs);

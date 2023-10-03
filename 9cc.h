@@ -56,6 +56,7 @@ typedef enum {
     ND_LVAR, // ローカル変数
     ND_NUM, // 整数
     ND_FUNCTION_CALL, // 関数呼び出し
+    ND_FUNCTION_DEF, // 関数定義
 } NodeKind;
 
 typedef struct Vector Vector;
@@ -79,8 +80,8 @@ struct Node {
     Node *loop;    // 同上
     int val;       // kindがND_NUMの場合のみ使う
     int offset;    // kindがND_LVARの場合のみ使う
-    Vector *args;       // 関数の引数。kindがND_FUNCTION_CALLの場合のみ使う
-    Vector *stmt;
+    Vector *args;  // 関数の引数。kindがND_FUNCTION_CALLの場合のみ使う
+    Vector *stmt;  // kindがND_BLOCKもしくはND_FUNCTION_DEFの場合、使用。
     char *name;    // 関数名
 };
 
@@ -106,6 +107,8 @@ void error_at(char *loc, char *fmt, ...);
 void *tokenize();
 
 void gen(Node *node);
+
+Node *func();
 
 Node *stmt();
 

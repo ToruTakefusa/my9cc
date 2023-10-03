@@ -93,9 +93,31 @@ LVar *find_lvar(Token *tok) {
 void program() {
     int i = 0;
     while (!at_eof()) {
-        code[i++] = stmt();
+        code[i++] = func();
     }
     code[i] = NULL;
+}
+
+Node *func() {
+    // 関数名が存在しない時
+    Token *tok = consume(TK_IDENT);
+    if (!tok) {
+        error_at(token->str, "識別子ではありません");
+    }
+    expect("(");
+    // Todo:引数が存在する場合
+    expect(")");
+    expect("{");
+
+    Node *node = new_node_kind(ND_FUNCTION_DEF);
+    node->name = strndup(tok->str, tok->len);
+    Vector *vec = initVector();
+
+    while (!consume_symbol("}")) {
+        addItem(vec, stmt());
+    }
+    node->stmt = vec;
+    return node;
 }
 
 Node *stmt() {
@@ -263,7 +285,6 @@ Node *primary() {
             if (consume_symbol(")")) {
                 return node;
             }
-            // Todo: 引数が2つ以上6つ以下の場合のサポート
             // 引数が存在する場合(引数は6つしかサポートしない)
             // primary, primaryのはず
             node->args = initVector();

@@ -122,11 +122,25 @@ void gen(Node *node) {
             printf("    push rax\n");
             return;
         case ND_FUNCTION_DEF:
-            // Todo: レジスタの初期化(一部は必要なはず)
-            // Todo: 関数から戻る際に、レジスタのリセット
+            // 関数名は、グローバルスコープにしておく。(関数名はユニークという前提)
+            printf("%s:\n", node->name);
+
+            // プロローグ
+            // 変数25個分の領域を確保する
+            printf("    push rbp\n");
+            printf("    mov rbp, rsp\n");
+            printf("    sub rsp, %d\n", functionData.locals * 8);
+
             for (int i = 0; i < node->stmt->length; i++) {
                 gen(getItem(node->stmt, i));
             }
+
+            // エピローグ
+            // 最後の式の結果がRAXに残っているのでそれが返り値になる
+            printf(".Lreturn:\n");
+            printf("    mov rsp, rbp\n");
+            printf("    pop rbp\n");
+            printf("    ret\n");
             return;
     }
 

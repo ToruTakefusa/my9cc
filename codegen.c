@@ -1,6 +1,7 @@
 #include "9cc.h"
 
 int labelCount = 0;
+int lastRet = 0;
 // 関数呼び出し時に、引数を格納するレジスタ
 char* argRegister[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 
@@ -91,7 +92,7 @@ void gen(Node *node) {
         case ND_RETURN:
             gen(node->lhs);
             printf("    pop rax\n");
-            printf("    jmp .Lreturn\n");
+            printf("    jmp .Lreturn%d\n", lastRet);
             return;
         case ND_FUNCTION_CALL:
             count = labelCount++;
@@ -131,13 +132,15 @@ void gen(Node *node) {
             printf("    mov rbp, rsp\n");
             printf("    sub rsp, %d\n", functionData.locals * 8);
 
+            lastRet = labelCount++;
+
             for (int i = 0; i < node->stmt->length; i++) {
                 gen(getItem(node->stmt, i));
             }
 
             // エピローグ
             // 最後の式の結果がRAXに残っているのでそれが返り値になる
-            printf(".Lreturn:\n");
+            printf(".Lreturn%d:\n", lastRet);
             printf("    mov rsp, rbp\n");
             printf("    pop rbp\n");
             printf("    ret\n");

@@ -213,4 +213,25 @@ assert 16 "
 main() {
   return foo6(3, 2, 1, 2, 3, 4);
 }"
+
+# function definition
+assert 1 "
+def1() {
+ return 1;
+}
+
+main() {
+  return def1();
+}
+"
+
+assert 5 "
+def1() {
+  return 2 + 3;
+}
+
+main() {
+  return def1();
+}
+"
 echo OK

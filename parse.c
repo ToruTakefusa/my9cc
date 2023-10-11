@@ -13,6 +13,7 @@ struct LVar {
 };
 
 LVar *locals;
+int variables = 0;
 
 // 次のトークンが期待している記号のときには、トークンを1つ読み進めて
 // 真を返す。それ以外の場合には偽を返す。
@@ -99,6 +100,10 @@ void program() {
 }
 
 Node *func() {
+    // 関数呼び出し毎に、ローカル変数の数とローカル変数の情報は初期化
+    variables = 0;
+    locals = NULL;
+
     // 関数名が存在しない時
     Token *tok = consume(TK_IDENT);
     if (!tok) {
@@ -117,6 +122,7 @@ Node *func() {
         addItem(vec, stmt());
     }
     node->stmt = vec;
+    node->variables = variables;
     return node;
 }
 
@@ -305,10 +311,10 @@ Node *primary() {
             lvar->next = locals;
             lvar->name = tok->str;
             lvar->len = tok->len;
-            lvar->offset = !locals? 0 : (locals->offset + 8);
+            lvar->offset = !locals? 8 : (locals->offset + 8);
             node->offset = lvar->offset;
             locals = lvar;
-            functionData.locals++;
+            variables++;
         }
         return node;
     }

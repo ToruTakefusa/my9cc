@@ -227,7 +227,8 @@ main() {
 
 assert 5 "
 def1() {
-  return 2 + 3;
+  a = 5;
+  return a;
 }
 
 main() {

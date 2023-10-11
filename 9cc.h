@@ -71,27 +71,19 @@ struct Vector {
 
 struct Node {
     NodeKind kind; // ノードの型
-    Node *lhs;     // 左辺
-    Node *rhs;     // 右辺
-    Node *cond;    // ifの条件、whileの条件、forの継続条件
-    Node *then;    // ifのthen節、whileのthen, forのthen
-    Node *els;     // ifのelse節
-    Node *init;    // for(init, cond, loop)
-    Node *loop;    // 同上
-    int val;       // kindがND_NUMの場合のみ使う
-    int offset;    // kindがND_LVARの場合のみ使う
-    Vector *args;  // 関数の引数。kindがND_FUNCTION_CALLの場合のみ使う
-    Vector *stmt;  // kindがND_BLOCKもしくはND_FUNCTION_DEFの場合、使用。
-    char *name;    // 関数名
-};
-
-typedef struct FunctionData FunctionData;
-
-extern FunctionData functionData;
-
-// 関数関連の情報
-struct FunctionData {
-    int locals; // ローカル変数の数
+    Node *lhs;      // 左辺
+    Node *rhs;      // 右辺
+    Node *cond;     // ifの条件、whileの条件、forの継続条件
+    Node *then;     // ifのthen節、whileのthen, forのthen
+    Node *els;      // ifのelse節
+    Node *init;     // for(init, cond, loop)
+    Node *loop;     // 同上
+    int val;        // kindがND_NUMの場合のみ使う
+    int offset;     // kindがND_LVARの場合のみ使う
+    Vector *args;   // 関数の引数。kindがND_FUNCTION_CALLの場合のみ使う
+    Vector *stmt;   // kindがND_BLOCKもしくはND_FUNCTION_DEFの場合、使用。
+    char *name;     // 関数名
+    int variables;   // 変数の数
 };
 
 // 入力プログラム

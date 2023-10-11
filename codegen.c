@@ -127,10 +127,10 @@ void gen(Node *node) {
             printf("%s:\n", node->name);
 
             // プロローグ
-            // 変数25個分の領域を確保する
+            // 変数の個数分、領域を確保する
             printf("    push rbp\n");
             printf("    mov rbp, rsp\n");
-            printf("    sub rsp, %d\n", functionData.locals * 8);
+            printf("    sub rsp, %d\n", node->variables * 8);
 
             lastRet = labelCount++;
 

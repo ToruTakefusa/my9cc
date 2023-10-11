@@ -1,7 +1,6 @@
 #include "9cc.h"
 
 Token *token;
-FunctionData functionData = {0};
 char *user_input;
 
 int main(int argc, char **argv) {

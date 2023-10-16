@@ -104,25 +104,50 @@ Node *func() {
     variables = 0;
     locals = NULL;
 
-    // 関数名が存在しない時
+    Node *node = new_node_kind(ND_FUNCTION_DEF);
+    Vector *args = initVector();
+
     Token *tok = consume(TK_IDENT);
     if (!tok) {
+        // 関数名が存在しない時
         error_at(token->str, "識別子ではありません");
     }
     expect("(");
-    // Todo:引数が存在する場合
-    expect(")");
+
+    while(!consume_symbol(")")) {
+        // Todo: 関数化
+        // Todo: 関数の引数の数が、関数の呼び出し元と異なる場合、エラーにする。
+        Node *arg = new_node_kind(ND_LVAR);
+        Token *tok = consume(TK_IDENT);
+        // 下記は変数の記録
+        LVar *lvar = calloc(1, sizeof(LVar));
+        lvar->next = locals;
+        lvar->name = tok->str;
+        lvar->len = tok->len;
+        lvar->offset = !locals? 8 : (locals->offset + 8);
+        arg->offset = lvar->offset;
+        locals = lvar;
+        addItem(args,arg);
+        variables++;
+        if (consume_symbol(",")) {
+            continue;
+        } else {
+            // 引数の後は","か")"
+            expect(")");
+            break;
+        }
+    }
+
     expect("{");
 
-    Node *node = new_node_kind(ND_FUNCTION_DEF);
     node->name = strndup(tok->str, tok->len);
     Vector *vec = initVector();
-
     while (!consume_symbol("}")) {
         addItem(vec, stmt());
     }
     node->stmt = vec;
     node->variables = variables;
+    node->args = args;
     return node;
 }
 

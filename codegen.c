@@ -131,6 +131,13 @@ void gen(Node *node) {
             printf("    push rbp\n");
             printf("    mov rbp, rsp\n");
             printf("    sub rsp, %d\n", node->variables * 8);
+            // node->argsの個数と、引数の値が格納されているレジスタの個数は一致している
+            for (int i = 0; i < node->args->length; i++) {
+                Node *arg = getItem(node->args, i);
+                printf("    mov rax, rbp\n");
+                printf("    sub rax, %d\n", arg->offset);
+                printf("    mov [rax], %s\n", argRegister[i]);
+            }
 
             lastRet = labelCount++;
 

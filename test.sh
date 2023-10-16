@@ -235,4 +235,15 @@ main() {
   return def1();
 }
 "
+
+assert 3 "
+def1(a, b) {
+    c = a + b;
+ return a + b;
+}
+
+main() {
+  return def1(1, 2);
+}
+"
 echo OK

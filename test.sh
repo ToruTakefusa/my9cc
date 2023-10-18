@@ -246,4 +246,20 @@ main() {
   return def1(1, 2);
 }
 "
+
+assert 3 "
+main() {
+    x = 3;
+    y = &x;
+    return *y;
+}
+"
+assert 3 "
+main() {
+    x = 3;
+    y = 5;
+    z = &y + 8;
+    return *z;
+}
+"
 echo OK

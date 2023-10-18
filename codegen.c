@@ -5,6 +5,9 @@ int lastRet = 0;
 // 関数呼び出し時に、引数を格納するレジスタ
 char* argRegister[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 
+/*
+ * 変数が格納されているアドレスを、スタックに格納する。
+ */
 void gen_lval(Node *node) {
     if (node->kind != ND_LVAR)
         error("代入の左辺値が変数ではありません");
@@ -23,6 +26,7 @@ void gen(Node *node) {
         case ND_LVAR:
             gen_lval(node);
             printf("    pop rax\n");
+            // 変数が格納されているアドレスから、値をロードする。
             printf("    mov rax, [rax]\n");
             printf("    push rax\n");
             return;
@@ -32,6 +36,7 @@ void gen(Node *node) {
 
             printf("    pop rdi\n");
             printf("    pop rax\n");
+            // 変数が格納されているアドレスに、値をセーブする。
             printf("    mov [rax], rdi\n");
             printf("    push rdi\n");
             return;
@@ -151,6 +156,15 @@ void gen(Node *node) {
             printf("    mov rsp, rbp\n");
             printf("    pop rbp\n");
             printf("    ret\n");
+            return;
+        case ND_ADDR:
+            gen_lval(node->lhs);
+            return;
+        case ND_DEREF:
+            gen(node->lhs);
+            printf("  pop rax\n");
+            printf("  mov rax, [rax]\n");
+            printf("  push rax\n");
             return;
     }
 

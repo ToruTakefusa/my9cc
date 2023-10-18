@@ -57,6 +57,8 @@ typedef enum {
     ND_NUM, // 整数
     ND_FUNCTION_CALL, // 関数呼び出し
     ND_FUNCTION_DEF, // 関数定義
+    ND_ADDR,        // &
+    ND_DEREF,       // *
 } NodeKind;
 
 typedef struct Vector Vector;

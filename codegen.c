@@ -103,7 +103,6 @@ void gen(Node *node) {
             count = labelCount++;
             if (node->args) {
                 // 引数が存在する場合
-                // Fixme ダサい
                 for (int i = 0; i < node->args->length; i++) {
                     gen(getItem(node->args,i));
                     printf("    pop %s\n", argRegister[i]);

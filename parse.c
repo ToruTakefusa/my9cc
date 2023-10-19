@@ -115,7 +115,6 @@ Node *func() {
     expect("(");
 
     while(!consume_symbol(")")) {
-        // Todo: 関数化
         // Todo: 関数の引数の数が、関数の呼び出し元と異なる場合、エラーにする。
         Node *arg = new_node_kind(ND_LVAR);
         Token *tok = consume(TK_IDENT);

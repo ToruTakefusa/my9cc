@@ -46,23 +46,34 @@ assert 1 "main() {return 1 >= 0;}"
 assert 1 "main() {return 1 >= 1;}"
 assert 0 "main() {return 1>=2;}"
 assert 14 "main() {
+int a;
+int b;
 a = 3;
 b = 5 * 6 - 8;
 return a + b / 2;
 }"
-assert 6 "main() {foo = 1;
+assert 6 "main() {
+int foo;
+foo = 1;
+int bar;
 bar = 2 + 3;
 return foo + bar;}"
 assert 6 "main() {
+int FOO;
+int BAR;
 Foo = 1;
 BAR = 2 + 3;
 return Foo + BAR;}"
 assert 6 "main() {
+  int _foo;
+  int Bar1;
   _foo = 1;
   Bar1 = 2 + 3;
   return _foo + Bar1;
 }"
 assert 14 "main() {
+  int a;
+  int b;
   a = 3;
   b = 5 * 6 - 8;
   return a + b / 2;
@@ -73,9 +84,14 @@ assert 5 "main() {
 
 # ifのテスト
 assert 0 "main() {if (1) return 0;}"
-assert 1 "main() {a = 1;
+assert 1 "main() {int a;
+a = 1;
 if(a) return 1;}"
-assert 4 "main() {b = 1;
+assert 4 "main() {
+int a;
+int b;
+int c;
+b = 1;
 if (1)
 a = 3;
 c = a + b;
@@ -96,6 +112,8 @@ main() {
 
 assert 5 "
 main() {
+  int a;
+  int b;
   a = 1;
   if (0)
   return 0;
@@ -106,6 +124,8 @@ main() {
 # whileのテスト
 assert 2 "
 main() {
+  int a;
+  int b;
   a = 0;
   while (a < 2)
   a = a + 1;
@@ -128,6 +148,8 @@ main() {
 
 assert 1 "
 main() {
+  int a;
+  int b;
   b = 0;
   for (a = 1 ; a < 2 ; a = a + 1)
   b = a + b;
@@ -136,20 +158,25 @@ main() {
 
 assert 3 "
 main() {
+  int a;
   for (a = 1; a < 3; a = a + 1)
+  int b;
   b = 0;
   return a;
 }"
 #
 assert 3 "
 main() {
+  int a;
   a = 0;
   for (; a < 3; a = a + 1)
+  int b;
   b = 0;
   return a;
 }"
 assert 0 "
 main() {
+  int a;
   a = 0;
   for (; a < 3; )
   a = a +1;
@@ -159,6 +186,7 @@ main() {
 ## 複合ケース
 assert 4 "
 main() {
+  int a;
   a = 0;
   for (; ; a = a + 1)
     if (a > 3) return a;
@@ -166,6 +194,7 @@ main() {
 
 assert 5 "
 main() {
+  int a;
   a = 0;
   for (; ;)
     if (a > 4) return a; else return 5;
@@ -174,6 +203,7 @@ main() {
 # Block
 assert 2 "
 main() {
+  int a;
   a = 1;
   if (10 > 5) {
     a = a + 1;
@@ -195,6 +225,7 @@ main() {
 
 assert 1 "
 main() {
+  int a;
   a = foo1(1);
   return a;
 }"
@@ -227,6 +258,7 @@ main() {
 
 assert 5 "
 def1() {
+  int a;
   a = 5;
   return a;
 }
@@ -238,6 +270,7 @@ main() {
 
 assert 3 "
 def1(a, b) {
+    int c;
     c = a + b;
  return a + b;
 }
@@ -249,15 +282,21 @@ main() {
 
 assert 3 "
 main() {
+    int x;
     x = 3;
+    int y;
     y = &x;
     return *y;
 }
 "
+
 assert 3 "
 main() {
+    int x;
     x = 3;
+    int y;
     y = 5;
+    int z;
     z = &y + 8;
     return *z;
 }

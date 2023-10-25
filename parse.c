@@ -335,15 +335,26 @@ Node *primary() {
         if (lvar) {
             node->offset = lvar->offset;
         } else {
-            lvar = calloc(1, sizeof(LVar));
-            lvar->next = locals;
-            lvar->name = tok->str;
-            lvar->len = tok->len;
-            lvar->offset = !locals? 8 : (locals->offset + 8);
-            node->offset = lvar->offset;
-            locals = lvar;
-            variables++;
+            //  定義されていない変数が見つかった
+            printf("%d\n", tok->kind);
+            error_at(tok->str, "変数が宣言されていません。\n");
         }
+        return node;
+    }
+
+    tok = consume(TK_RESERVED);
+    if (tok && strncmp(tok->str, "int", 3) == 0) {
+        // 変数宣言
+        tok = consume(TK_IDENT);
+        Node *node = new_node_kind(ND_LVAR);
+        LVar *lvar = calloc(1, sizeof(LVar));
+        lvar->next = locals;
+        lvar->name = tok->str;
+        lvar->len = tok->len;
+        lvar->offset = !locals? 8 : (locals->offset + 8);
+        node->offset = lvar->offset;
+        locals = lvar;
+        variables++;
         return node;
     }
 

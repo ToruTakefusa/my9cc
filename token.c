@@ -85,6 +85,12 @@ void *tokenize() {
             continue;
         }
 
+        if (!strncmp(p, "int", 3) && !is_alnum(p[3])) {
+            cur = new_token(TK_RESERVED, cur, p, 3);
+            p += 3;
+            continue;
+        }
+
         if ('a' <= *p && *p <= 'z' || 'A' <= *p && *p <= 'Z' || '_' == *p) {
             // 変数名は、1文字目はa~z, A~Z, _のいずれか
             int length = 1;

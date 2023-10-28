@@ -107,17 +107,20 @@ Node *func() {
     Node *node = new_node_kind(ND_FUNCTION_DEF);
     Vector *args = initVector();
 
+    expect("int");
+
     Token *tok = consume(TK_IDENT);
     if (!tok) {
         // 関数名が存在しない時
-        error_at(token->str, "識別子ではありません");
+        error_at(token->str, "識別子ではありません\n");
     }
     expect("(");
 
     while(!consume_symbol(")")) {
         // Todo: 関数の引数の数が、関数の呼び出し元と異なる場合、エラーにする。
         Node *arg = new_node_kind(ND_LVAR);
-        Token *tok = consume(TK_IDENT);
+        expect("int");
+;       Token *tok = consume(TK_IDENT);
         // 下記は変数の記録
         LVar *lvar = calloc(1, sizeof(LVar));
         lvar->next = locals;
@@ -343,7 +346,7 @@ Node *primary() {
     }
 
     tok = consume(TK_RESERVED);
-    if (tok && strncmp(tok->str, "int", 3) == 0) {
+    if (tok && !strncmp(tok->str, "int", 3)) {
         // 変数宣言
         tok = consume(TK_IDENT);
         Node *node = new_node_kind(ND_LVAR);

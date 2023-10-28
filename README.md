@@ -7,8 +7,8 @@
 ## 文法
 現在サポートしている文法は、下記となります。
 ```text
-program    = func*
-func = ident "(" ")" "{" stmt* "}"
+program    = int func*
+func = ident "(" (int ident)? (, int ident)* ")" "{" stmt* "}"
 stmt       = expr ";"
             | "{" stmt* "}" 
             | "if" "(" expr ")" stmt ("else" stmt)?

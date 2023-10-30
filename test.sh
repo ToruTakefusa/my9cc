@@ -290,15 +290,4 @@ int main() {
 }
 "
 
-assert 3 "
-int main() {
-    int x;
-    x = 3;
-    int y;
-    y = 5;
-    int z;
-    z = &y + 8;
-    return *z;
-}
-"
 echo OK

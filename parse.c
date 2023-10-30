@@ -128,6 +128,7 @@ Node *func() {
         lvar->len = tok->len;
         lvar->offset = !locals? 8 : (locals->offset + 8);
         arg->offset = lvar->offset;
+        arg->type = INT;
         locals = lvar;
         addItem(args,arg);
         variables++;
@@ -150,6 +151,7 @@ Node *func() {
     node->stmt = vec;
     node->variables = variables;
     node->args = args;
+    node->type = INT;
     return node;
 }
 
@@ -356,6 +358,7 @@ Node *primary() {
         lvar->len = tok->len;
         lvar->offset = !locals? 8 : (locals->offset + 8);
         node->offset = lvar->offset;
+        node->type = INT;
         locals = lvar;
         variables++;
         return node;

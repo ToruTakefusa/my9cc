@@ -12,6 +12,7 @@ Node *new_node_kind(NodeKind kind) {
     node->rhs = NULL;
     node->offset = 0;
     node->args = NULL;
+    node->type = malloc(sizeof (Type));
 
     return node;
 }
@@ -28,6 +29,7 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
     node->rhs = rhs;
     node->offset = 0;
     node->args = NULL;
+    node->type = malloc(sizeof (Type));
     return node;
 }
 
@@ -43,5 +45,6 @@ Node *new_node_num(int val) {
     node->rhs = NULL;
     node->offset = 0;
     node->args = NULL;
+    node->type = malloc(sizeof (Type));
     return node;
 }

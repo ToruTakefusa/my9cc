@@ -62,13 +62,18 @@ typedef enum {
 } NodeKind;
 
 typedef struct Vector Vector;
-
 typedef struct Node Node;
+typedef struct Type Type;
 
 struct Vector {
     int size;
     int length;
     Node *data;
+};
+
+struct Type {
+    enum {INT, PTR} ty;     // 型
+    struct Type *ptr_to;    // tyがPTRの場合のみ使用する、参照先の型情報
 };
 
 struct Node {
@@ -85,7 +90,8 @@ struct Node {
     Vector *args;   // 関数の引数。kindがND_FUNCTION_CALLもしくはND_FUNCTION_DEFの場合、使用する。
     Vector *stmt;   // kindがND_BLOCKもしくはND_FUNCTION_DEFの場合、使用。
     char *name;     // 関数名
-    int variables;   // 変数の数
+    int variables;  // 変数の数
+    Type *type;      // 型情報
 };
 
 // 入力プログラム

@@ -61,6 +61,11 @@ typedef enum {
     ND_DEREF,       // *
 } NodeKind;
 
+typedef enum {
+    TY_INT,    // int型
+    TY_PTR,    // *
+} TypeName;
+
 typedef struct Vector Vector;
 typedef struct Node Node;
 typedef struct Type Type;
@@ -72,7 +77,7 @@ struct Vector {
 };
 
 struct Type {
-    enum {INT, PTR} ty;     // 型
+    TypeName ty;     // 型
     struct Type *ptr_to;    // tyがPTRの場合のみ使用する、参照先の型情報
 };
 

@@ -37,13 +37,25 @@ Token* consume(TokenKind kind) {
     return ret;
 }
 
+/**
+ * 次のトークンが期待している記号の場合は、trueを返す。
+ * それ以外の場合は、falseを返す。
+ * @param op
+ * @return
+ */
+bool is_expect_op(Token *tok, char *op) {
+    if (tok->kind != TK_RESERVED ||
+        strlen(op) != tok->len ||
+        memcmp(tok->str, op, tok->len))
+        return false;
+    return true;
+}
+
 // 次のトークンが期待している記号のときには、トークンを1つ読み進める。
 // それ以外の場合にはエラーを報告する。
 void expect(char *op) {
-    if (token->kind != TK_RESERVED ||
-        strlen(op) != token->len ||
-        memcmp(token->str, op, token->len))
-        error_at(token->str, "'%s'ではありません", op);
+    if (!is_expect_op(token, op))
+        error_at(token->str, "'%s'ではありません\n", op);
     token = token->next;
 }
 
@@ -51,11 +63,26 @@ void expect(char *op) {
 // それ以外の場合にはエラーを報告する。
 int expect_number() {
     if (token->kind != TK_NUM)
-        error_at(token->str, "数ではありません");
+        error_at(token->str, "数ではありません\n");
     int val = token->val;
     token = token->next;
     return val;
 }
+
+// 引数のトークンが型の場合は、トークンを1つ読み進め、該当する型名を返す。
+// それ以外の場合は、エラーを報告する。
+TypeName expect_type() {
+    if (is_expect_op(token, "int")) {
+        token = token->next;
+        return TY_INT;
+    } else if (is_expect_op(token, "*")) {
+        token = token->next;
+        return TY_PTR;
+    } else {
+        error_at(token->str, "型が宣言されていません\n");
+    }
+}
+
 
 // 次のトークンが数値の場合、trueを返す。
 // それ以外の場合は、falseを返す。
@@ -91,6 +118,13 @@ LVar *find_lvar(Token *tok) {
     return NULL;
 }
 
+Type *new_type(TypeName typeName) {
+    Type *type = malloc(sizeof (Type));
+    type->ty = typeName;
+    return type;
+}
+
+
 void program() {
     int i = 0;
     while (!at_eof()) {
@@ -107,7 +141,10 @@ Node *func() {
     Node *node = new_node_kind(ND_FUNCTION_DEF);
     Vector *args = initVector();
 
-    expect("int");
+    // Todo: ポインタ型への対応
+    //expect("int");
+    TypeName name = expect_type();
+    node->type = new_type(name);
 
     Token *tok = consume(TK_IDENT);
     if (!tok) {
@@ -119,7 +156,9 @@ Node *func() {
     while(!consume_symbol(")")) {
         // Todo: 関数の引数の数が、関数の呼び出し元と異なる場合、エラーにする。
         Node *arg = new_node_kind(ND_LVAR);
-        expect("int");
+        // Todo: ポインタ型への対応
+        Type *type = new_type(expect_type());
+
 ;       Token *tok = consume(TK_IDENT);
         // 下記は変数の記録
         LVar *lvar = calloc(1, sizeof(LVar));
@@ -128,7 +167,8 @@ Node *func() {
         lvar->len = tok->len;
         lvar->offset = !locals? 8 : (locals->offset + 8);
         arg->offset = lvar->offset;
-        arg->type = INT;
+        arg->type = type;
+
         locals = lvar;
         addItem(args,arg);
         variables++;
@@ -142,7 +182,6 @@ Node *func() {
     }
 
     expect("{");
-
     node->name = strndup(tok->str, tok->len);
     Vector *vec = initVector();
     while (!consume_symbol("}")) {
@@ -151,7 +190,6 @@ Node *func() {
     node->stmt = vec;
     node->variables = variables;
     node->args = args;
-    node->type = INT;
     return node;
 }
 
@@ -348,8 +386,16 @@ Node *primary() {
     }
 
     tok = consume(TK_RESERVED);
-    if (tok && !strncmp(tok->str, "int", 3)) {
-        // 変数宣言
+
+    if (tok && (is_expect_op(tok, "int")|| is_expect_op(tok, "*") )) {
+        TypeName name;
+        if (is_expect_op(tok, "int")) {
+            name = TY_INT;
+        } else if (is_expect_op(tok, "*")) {
+            name = TY_PTR;
+        }
+        // 変数宣言の場合
+        // Todo: ポインタ型への対応
         tok = consume(TK_IDENT);
         Node *node = new_node_kind(ND_LVAR);
         LVar *lvar = calloc(1, sizeof(LVar));
@@ -358,7 +404,7 @@ Node *primary() {
         lvar->len = tok->len;
         lvar->offset = !locals? 8 : (locals->offset + 8);
         node->offset = lvar->offset;
-        node->type = INT;
+        node->type = new_type(name);
         locals = lvar;
         variables++;
         return node;

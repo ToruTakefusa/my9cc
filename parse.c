@@ -141,10 +141,21 @@ Node *func() {
     Node *node = new_node_kind(ND_FUNCTION_DEF);
     Vector *args = initVector();
 
-    // Todo: ポインタ型への対応
-    //expect("int");
-    TypeName name = expect_type();
-    node->type = new_type(name);
+    // int型か、ポインタ型しかないので、最初は必ずint
+    expect("int");
+
+    Type *type = malloc(sizeof(Type));
+    type->ty = TY_INT;
+    type->ptr_to = NULL;
+    node->type = type;
+
+    while (consume_symbol("*")) {
+        // 「*」は任意個連続する可能性がある。
+        type = malloc(sizeof (Type));
+        type->ty = TY_PTR;
+        type->ptr_to = node->type;
+        node->type = type;
+    }
 
     Token *tok = consume(TK_IDENT);
     if (!tok) {
@@ -154,10 +165,24 @@ Node *func() {
     expect("(");
 
     while(!consume_symbol(")")) {
+        // 関数の引数の処理
         // Todo: 関数の引数の数が、関数の呼び出し元と異なる場合、エラーにする。
         Node *arg = new_node_kind(ND_LVAR);
-        // Todo: ポインタ型への対応
-        Type *type = new_type(expect_type());
+
+        // int型か、ポインタ型しかないので、最初は必ずint
+        expect("int");
+        Type *type = malloc(sizeof (Type));
+        type->ty = TY_INT;
+        type->ptr_to  = NULL;
+        arg->type = type;
+
+        while (consume_symbol("*")) {
+            // 「*」は任意個連続する可能性がある。
+            type = malloc(sizeof (Type));
+            type->ty = TY_PTR;
+            type->ptr_to = arg->type;
+            arg->type = type;
+        }
 
 ;       Token *tok = consume(TK_IDENT);
         // 下記は変数の記録
@@ -167,7 +192,6 @@ Node *func() {
         lvar->len = tok->len;
         lvar->offset = !locals? 8 : (locals->offset + 8);
         arg->offset = lvar->offset;
-        arg->type = type;
 
         locals = lvar;
         addItem(args,arg);
@@ -354,7 +378,7 @@ Node *primary() {
     Token *tok = consume(TK_IDENT);
     if (tok) {
         if (consume_symbol("(")) {
-            // 関数の場合
+            // 関数呼び出しの場合
             Node *node = new_node_kind(ND_FUNCTION_CALL);
             node->name = strndup(tok->str, tok->len);
 
@@ -386,25 +410,33 @@ Node *primary() {
     }
 
     tok = consume(TK_RESERVED);
-
-    if (tok && (is_expect_op(tok, "int")|| is_expect_op(tok, "*") )) {
-        TypeName name;
-        if (is_expect_op(tok, "int")) {
-            name = TY_INT;
-        } else if (is_expect_op(tok, "*")) {
-            name = TY_PTR;
-        }
+    if (tok && (is_expect_op(tok, "int"))) {
         // 変数宣言の場合
-        // Todo: ポインタ型への対応
+        // int型か、ポインタ型しかないので、最初は必ずint
+        Node *node = make_node();
+
+        Type *type = malloc(sizeof (Type));
+        type->ty = TY_INT;
+        type->ptr_to  = NULL;
+        node->type = type;
+
+        while (consume_symbol("*")) {
+            // 「*」は任意個連続する可能性がある。
+            type = malloc(sizeof (Type));
+            type->ty = TY_PTR;
+            type->ptr_to = node->type;
+            node->type = type;
+        }
+
         tok = consume(TK_IDENT);
-        Node *node = new_node_kind(ND_LVAR);
+
         LVar *lvar = calloc(1, sizeof(LVar));
         lvar->next = locals;
         lvar->name = tok->str;
         lvar->len = tok->len;
         lvar->offset = !locals? 8 : (locals->offset + 8);
+        node->kind = ND_LVAR;
         node->offset = lvar->offset;
-        node->type = new_type(name);
         locals = lvar;
         variables++;
         return node;

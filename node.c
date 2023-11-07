@@ -33,6 +33,21 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
     return node;
 }
 
+Node *make_node() {
+    Node *node = malloc(sizeof(Node));
+    node->stmt = NULL;
+    node->val = 0;
+    node->init = NULL;
+    node->loop = NULL;
+    node->cond = NULL;
+    node->lhs = NULL;
+    node->rhs = NULL;
+    node->offset = 0;
+    node->args = NULL;
+    node->type = malloc(sizeof (Type));
+    return node;
+}
+
 Node *new_node_num(int val) {
     Node *node = malloc(sizeof(Node));
     node->kind = ND_NUM;

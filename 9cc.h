@@ -145,6 +145,8 @@ Node *new_node_kind(NodeKind kind);
 
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs);
 
+Node *make_node();
+
 Node *new_node_num(int val);
 
 // For Debug

@@ -3,6 +3,16 @@
 //
 #include "9cc.h"
 
+char* getTypeName(int ty) {
+    switch (ty) {
+        case TY_INT :
+            return "TY_INT";
+        case TY_PTR:
+            return "TY_PTR";
+    }
+}
+
+
 void printNode(Node *node) {
     printf("Nodeを出力します。\n");
     if (!node) {
@@ -19,6 +29,7 @@ void printNode(Node *node) {
             printNode(node1);
         }
     }
+
     if (node->kind == ND_NUM) {
         printf("数値の値は、%dです。\n", node->val);
     }
@@ -33,7 +44,15 @@ void printNode(Node *node) {
             }
         }
     }
+
+    if (node->kind == ND_LVAR) {
+        printf("型情報を出力します。\n");
+        printf("型は%sです。\n", getTypeName(node->type->ty));
+    }
+
+    printf("nodeのlhs\n");
     printNode(node->lhs);
+    printf("nodeのrhs\n");
     printNode(node->rhs);
 }
 

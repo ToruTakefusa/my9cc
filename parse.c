@@ -8,6 +8,7 @@ typedef struct LVar LVar;
 struct LVar {
     LVar *next; // 次の変数がNULL
     char *name; // 変数の名前
+    Type *type;
     int len;    // 変数の長さ
     int offset; // RBPからのオフセット
 };
@@ -191,6 +192,7 @@ Node *func() {
         lvar->name = tok->str;
         lvar->len = tok->len;
         lvar->offset = !locals? 8 : (locals->offset + 8);
+        lvar->type = type;
         arg->offset = lvar->offset;
 
         locals = lvar;
@@ -333,12 +335,49 @@ Node *add() {
     Node *node = mul();
 
     for (;;) {
-        if (consume_symbol("+"))
+        if (consume_symbol("+")) {
             node = new_node(ND_ADD, node, mul());
-        else if (consume_symbol("-"))
+        } else if (consume_symbol("-")) {
             node = new_node(ND_SUB, node, mul());
-        else
+        } else if (!node->lhs || !node->rhs) {
             return node;
+        } else if (node->lhs && node->rhs) {
+            // ポインタ型の演算を行う(左辺も右辺もポインタ型の場合は、対応しない)
+            if ( ND_LVAR == node->lhs->kind && TY_PTR == node->lhs->type->ty && (
+                    ND_NUM == node->rhs->kind || ND_LVAR == node->rhs->kind && TY_INT == node->rhs->type->ty)) {
+                // lhsがポインタ型の変数かつ、rhsが数値もしくは、数値型の変数の場合
+                if ( TY_INT == node->lhs->type->ptr_to->ty ) {
+                    // lhsが数値型の場合
+                    Node *rhs = new_node(ND_NUM, NULL, NULL);
+                    rhs->val = 4;
+                    Node *tmp = new_node(ND_MUL, node->rhs, rhs);
+                    node->rhs = tmp;
+                } else if (TY_PTR == node->lhs->type->ptr_to->ty) {
+                    // lhsがポインタ型の場合
+                    Node *rhs = new_node(ND_NUM, NULL, NULL);
+                    rhs->val = 8;
+                    Node *tmp = new_node(ND_MUL, node->rhs, rhs);
+                    node->rhs = tmp;
+                }
+            } else if ( ND_LVAR == node->rhs->kind && TY_PTR == node->rhs->type->ty && (
+                    ND_NUM == node->lhs->kind || ND_LVAR == node->lhs->kind && TY_INT == node->lhs->type->ty)) {
+                // rhsがポインタ型の変数かつ、lhsが数値もしくは、数値型の変数の場合
+                if (TY_INT == node->rhs->type->ptr_to->ty) {
+                    // rhsが数値型の場合
+                    Node *lhs = new_node(ND_NUM, NULL, NULL);
+                    lhs->val = 4;
+                    Node *tmp = new_node(ND_MUL, node->lhs, lhs);
+                    node->lhs = tmp;
+                } else if (TY_PTR == node->rhs->type->ptr_to->ty) {
+                    // rhsがポインタ型の場合
+                    Node *lhs = new_node(ND_NUM, NULL, NULL);
+                    lhs->val = 8;
+                    Node *tmp = new_node(ND_MUL, node->lhs, lhs);
+                    node->rhs = tmp;
+                }
+            }
+            return node;
+        }
     }
 }
 
@@ -401,6 +440,7 @@ Node *primary() {
         LVar *lvar = find_lvar(tok);
         if (lvar) {
             node->offset = lvar->offset;
+            node->type = lvar->type;
         } else {
             //  定義されていない変数が見つかった
             printf("%d\n", tok->kind);
@@ -437,6 +477,7 @@ Node *primary() {
         lvar->offset = !locals? 8 : (locals->offset + 8);
         node->kind = ND_LVAR;
         node->offset = lvar->offset;
+        lvar->type = node->type;
         locals = lvar;
         variables++;
         return node;

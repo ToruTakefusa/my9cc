@@ -272,11 +272,11 @@ assert 3 "
 int def1(int a, int b) {
     int c;
     c = a + b;
- return a + b;
+    return a + b;
 }
 
 int main() {
-  return def1(1, 2);
+    return def1(1, 2);
 }
 "
 
@@ -297,6 +297,18 @@ int main() {
     y = &x;
     *y = 3;
     return x;
+}
+"
+
+assert 8 "
+int main() {
+    int *p;
+    p = alloc4(&p, 1, 2, 4, 8);
+    int *q;
+    q = p + 2;
+    *q;
+    q = p + 3;
+    return *q;
 }
 "
 

@@ -125,6 +125,38 @@ Type *new_type(TypeName typeName) {
     return type;
 }
 
+// FIXME: もう少しシンプルにしたい
+Type *find_deref_type(Node *node, Type *type) {
+    while (node && ND_DEREF == node->kind) {
+        if (!type->ptr_to) return type;
+        type = type->ptr_to;
+        node = node->lhs;
+    }
+    return type;
+}
+
+
+Type *findType(Node *node) {
+    if (!node) return NULL;
+    Type *ltype = findType(node->lhs);
+    Type *rtype = findType(node->rhs);
+
+
+    if (ND_DEREF == node->kind) {
+        if (ltype && TY_PTR == ltype->ty) return find_deref_type(node, ltype);
+        if (rtype && TY_PTR == rtype->ty) return find_deref_type(node, rtype);
+    }
+
+    // どれかがポインタ型なら、ポインタ型を返す。
+    if (node->type && TY_PTR == node->type->ty) return node->type;
+    if (ltype && TY_PTR == ltype->ty) return ltype;
+    if (rtype && TY_PTR == rtype->ty) return rtype;
+
+    if (node->type && TY_INT == node->type->ty) return node->type;
+    if (ltype && TY_INT == ltype->ty) return ltype;
+    if (rtype && TY_INT == rtype->ty) return rtype;
+    return NULL;
+}
 
 void program() {
     int i = 0;
@@ -403,6 +435,17 @@ Node *unary() {
         return new_node(ND_DEREF, unary(), NULL);
     if (consume_symbol("&"))
         return new_node(ND_ADDR, unary(), NULL);
+    if (consume(TK_SIZEOF)) {
+        Node *child = unary();
+        Type *type = findType(child);
+        if (type && TY_INT == type->ty) {
+            return new_node_num(4);
+        } else if (type && TY_PTR == type->ty) {
+            return new_node_num(8);
+        } else {
+            return NULL;
+        }
+    }
     return primary();
 }
 

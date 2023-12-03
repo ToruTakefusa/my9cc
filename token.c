@@ -91,6 +91,12 @@ void *tokenize() {
             continue;
         }
 
+        if (!strncmp(p, "sizeof", 6) && !is_alnum(p[6])) {
+            cur = new_token(TK_SIZEOF, cur, p, 6);
+            p += 6;
+            continue;
+        }
+
         if ('a' <= *p && *p <= 'z' || 'A' <= *p && *p <= 'Z' || '_' == *p) {
             // 変数名は、1文字目はa~z, A~Z, _のいずれか
             int length = 1;

@@ -5,10 +5,10 @@
 
 char* getTypeName(int ty) {
     switch (ty) {
-        case TY_INT :
-            return "TY_INT";
-        case TY_PTR:
-            return "TY_PTR";
+        case INT :
+            return "INT型";
+        case PTR:
+            return "PTR型";
     }
 }
 

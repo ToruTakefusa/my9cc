@@ -75,10 +75,10 @@ int expect_number() {
 TypeName expect_type() {
     if (is_expect_op(token, "int")) {
         token = token->next;
-        return TY_INT;
+        return INT;
     } else if (is_expect_op(token, "*")) {
         token = token->next;
-        return TY_PTR;
+        return PTR;
     } else {
         error_at(token->str, "型が宣言されていません\n");
     }
@@ -143,18 +143,18 @@ Type *findType(Node *node) {
 
 
     if (ND_DEREF == node->kind) {
-        if (ltype && TY_PTR == ltype->ty) return find_deref_type(node, ltype);
-        if (rtype && TY_PTR == rtype->ty) return find_deref_type(node, rtype);
+        if (ltype && PTR == ltype->ty) return find_deref_type(node, ltype);
+        if (rtype && PTR == rtype->ty) return find_deref_type(node, rtype);
     }
 
     // どれかがポインタ型なら、ポインタ型を返す。
-    if (node->type && TY_PTR == node->type->ty) return node->type;
-    if (ltype && TY_PTR == ltype->ty) return ltype;
-    if (rtype && TY_PTR == rtype->ty) return rtype;
+    if (node->type && PTR == node->type->ty) return node->type;
+    if (ltype && PTR == ltype->ty) return ltype;
+    if (rtype && PTR == rtype->ty) return rtype;
 
-    if (node->type && TY_INT == node->type->ty) return node->type;
-    if (ltype && TY_INT == ltype->ty) return ltype;
-    if (rtype && TY_INT == rtype->ty) return rtype;
+    if (node->type && INT == node->type->ty) return node->type;
+    if (ltype && INT == ltype->ty) return ltype;
+    if (rtype && INT == rtype->ty) return rtype;
     return NULL;
 }
 
@@ -178,14 +178,14 @@ Node *func() {
     expect("int");
 
     Type *type = malloc(sizeof(Type));
-    type->ty = TY_INT;
+    type->ty = INT;
     type->ptr_to = NULL;
     node->type = type;
 
     while (consume_symbol("*")) {
         // 「*」は任意個連続する可能性がある。
         type = malloc(sizeof (Type));
-        type->ty = TY_PTR;
+        type->ty = PTR;
         type->ptr_to = node->type;
         node->type = type;
     }
@@ -205,14 +205,14 @@ Node *func() {
         // int型か、ポインタ型しかないので、最初は必ずint
         expect("int");
         Type *type = malloc(sizeof (Type));
-        type->ty = TY_INT;
+        type->ty = INT;
         type->ptr_to  = NULL;
         arg->type = type;
 
         while (consume_symbol("*")) {
             // 「*」は任意個連続する可能性がある。
             type = malloc(sizeof (Type));
-            type->ty = TY_PTR;
+            type->ty = PTR;
             type->ptr_to = arg->type;
             arg->type = type;
         }
@@ -375,32 +375,32 @@ Node *add() {
             return node;
         } else if (node->lhs && node->rhs) {
             // ポインタ型の演算を行う(左辺も右辺もポインタ型の場合は、対応しない)
-            if ( ND_LVAR == node->lhs->kind && TY_PTR == node->lhs->type->ty && (
-                    ND_NUM == node->rhs->kind || ND_LVAR == node->rhs->kind && TY_INT == node->rhs->type->ty)) {
+            if ( ND_LVAR == node->lhs->kind && PTR == node->lhs->type->ty && (
+                    ND_NUM == node->rhs->kind || ND_LVAR == node->rhs->kind && INT == node->rhs->type->ty)) {
                 // lhsがポインタ型の変数かつ、rhsが数値もしくは、数値型の変数の場合
-                if ( TY_INT == node->lhs->type->ptr_to->ty ) {
+                if ( INT == node->lhs->type->ptr_to->ty ) {
                     // lhsが数値型の場合
                     Node *rhs = new_node(ND_NUM, NULL, NULL);
                     rhs->val = 4;
                     Node *tmp = new_node(ND_MUL, node->rhs, rhs);
                     node->rhs = tmp;
-                } else if (TY_PTR == node->lhs->type->ptr_to->ty) {
+                } else if (PTR == node->lhs->type->ptr_to->ty) {
                     // lhsがポインタ型の場合
                     Node *rhs = new_node(ND_NUM, NULL, NULL);
                     rhs->val = 8;
                     Node *tmp = new_node(ND_MUL, node->rhs, rhs);
                     node->rhs = tmp;
                 }
-            } else if ( ND_LVAR == node->rhs->kind && TY_PTR == node->rhs->type->ty && (
-                    ND_NUM == node->lhs->kind || ND_LVAR == node->lhs->kind && TY_INT == node->lhs->type->ty)) {
+            } else if ( ND_LVAR == node->rhs->kind && PTR == node->rhs->type->ty && (
+                    ND_NUM == node->lhs->kind || ND_LVAR == node->lhs->kind && INT == node->lhs->type->ty)) {
                 // rhsがポインタ型の変数かつ、lhsが数値もしくは、数値型の変数の場合
-                if (TY_INT == node->rhs->type->ptr_to->ty) {
+                if (INT == node->rhs->type->ptr_to->ty) {
                     // rhsが数値型の場合
                     Node *lhs = new_node(ND_NUM, NULL, NULL);
                     lhs->val = 4;
                     Node *tmp = new_node(ND_MUL, node->lhs, lhs);
                     node->lhs = tmp;
-                } else if (TY_PTR == node->rhs->type->ptr_to->ty) {
+                } else if (PTR == node->rhs->type->ptr_to->ty) {
                     // rhsがポインタ型の場合
                     Node *lhs = new_node(ND_NUM, NULL, NULL);
                     lhs->val = 8;
@@ -438,9 +438,9 @@ Node *unary() {
     if (consume(TK_SIZEOF)) {
         Node *child = unary();
         Type *type = findType(child);
-        if (type && TY_INT == type->ty) {
+        if (type && INT == type->ty) {
             return new_node_num(4);
-        } else if (type && TY_PTR == type->ty) {
+        } else if (type && PTR == type->ty) {
             return new_node_num(8);
         } else {
             return NULL;
@@ -499,14 +499,14 @@ Node *primary() {
         Node *node = make_node();
 
         Type *type = malloc(sizeof (Type));
-        type->ty = TY_INT;
+        type->ty = INT;
         type->ptr_to  = NULL;
         node->type = type;
 
         while (consume_symbol("*")) {
             // 「*」は任意個連続する可能性がある。
             type = malloc(sizeof (Type));
-            type->ty = TY_PTR;
+            type->ty = PTR;
             type->ptr_to = node->type;
             node->type = type;
         }

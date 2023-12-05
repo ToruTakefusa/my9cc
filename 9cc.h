@@ -63,8 +63,8 @@ typedef enum {
 } NodeKind;
 
 typedef enum {
-    TY_INT,    // int型
-    TY_PTR,    // *
+    INT,    // int型
+    PTR,    // *
 } TypeName;
 
 typedef struct Vector Vector;

@@ -495,7 +495,7 @@ Node *primary() {
     tok = consume(TK_RESERVED);
     if (tok && (is_expect_op(tok, "int"))) {
         // 変数宣言の場合
-        // int型か、ポインタ型しかないので、最初は必ずint
+        // int型か、ポインタ型しかないので、最初は必ずintと宣言されている。
         Node *node = make_node();
 
         Type *type = malloc(sizeof (Type));

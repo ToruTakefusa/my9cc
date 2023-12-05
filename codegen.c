@@ -10,9 +10,6 @@ char* argRegister[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
  */
 void gen_lval(Node *node) {
 
-//    if (node->kind != ND_LVAR)
-//        error("代入の左辺値が変数ではありません");
-
     if (ND_LVAR == node->kind) {
         printf("    mov rax, rbp\n");
         printf("    sub rax, %d\n", node->offset);

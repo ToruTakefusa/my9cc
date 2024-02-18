@@ -2,19 +2,7 @@
 
 Node *code[100];
 
-typedef struct LVar LVar;
-
-// ローカル変数の型
-struct LVar {
-    LVar *next; // 次の変数がNULL
-    char *name; // 変数の名前
-    Type *type;
-    int len;    // 変数の長さ
-    int offset; // RBPからのオフセット
-};
-
 LVar *locals;
-int variables = 0;
 
 // 次のトークンが期待している記号のときには、トークンを1つ読み進めて
 // 真を返す。それ以外の場合には偽を返す。
@@ -168,7 +156,6 @@ void program() {
 
 Node *func() {
     // 関数呼び出し毎に、ローカル変数の数とローカル変数の情報は初期化
-    variables = 0;
     locals = NULL;
 
     Node *node = new_node_kind(ND_FUNCTION_DEF);
@@ -229,7 +216,7 @@ Node *func() {
 
         locals = lvar;
         addItem(args,arg);
-        variables++;
+
         if (consume_symbol(",")) {
             continue;
         } else {
@@ -246,8 +233,8 @@ Node *func() {
         addItem(vec, stmt());
     }
     node->stmt = vec;
-    node->variables = variables;
     node->args = args;
+    node->locals = locals;
     return node;
 }
 
@@ -304,7 +291,7 @@ Node *stmt() {
         node->then = stmt();
         return node;
     } else if (consume_symbol("{")) {
-        // block
+        // blockの場合
         node = new_node_kind(ND_BLOCK);
         Vector *vector = initVector();
         while(!consume_symbol("}")) {
@@ -427,14 +414,50 @@ Node *mul() {
 }
 
 Node *unary() {
-    if (consume_symbol("+"))
+    // Todo: sizeofと&以外の場合、primaryが配列の場合、ポインタに変換する。
+
+    if (consume_symbol("+")) {
+//        Node *tmp = primary();
+//        if (ND_LVAR == tmp->kind && ARRAY == tmp->type->ty) {
+//            tmp->type->ty = PTR;
+//        }
+//        return tmp;
         return primary();
-    if (consume_symbol("-"))
+    }
+    if (consume_symbol("-")) {
+//        Node *tmp = primary();
+//        if (ND_LVAR == tmp->kind && ARRAY == tmp->type->ty) {
+//            tmp->type->ty = PTR;
+//        }
+//        return new_node(ND_SUB, new_node_num(0), tmp);
         return new_node(ND_SUB, new_node_num(0), primary());
-    if (consume_symbol("*"))
-        return new_node(ND_DEREF, unary(), NULL);
+    }
+    if (consume_symbol("*")) {
+        int count = 0;
+
+        while (consume_symbol("*")) {
+            // 「*」は任意個連続する可能性がある。
+            count++;
+        }
+
+        Node *new;
+        Node *tmp = primary();
+        if (ND_LVAR == tmp->kind && ARRAY == tmp->type->ty) {
+            tmp->type->ty = PTR;
+        }
+        Node *old = tmp;
+
+        while (count > 0) {
+            new = new_node(ND_DEREF, old, NULL);
+            old = new;
+            count--;
+        }
+
+        return new_node(ND_DEREF, old, NULL);
+    }
     if (consume_symbol("&"))
         return new_node(ND_ADDR, unary(), NULL);
+
     if (consume(TK_SIZEOF)) {
         Node *child = unary();
         Type *type = findType(child);
@@ -446,7 +469,12 @@ Node *unary() {
             return NULL;
         }
     }
-    return primary();
+
+    Node* tmp = primary();
+    if (ND_LVAR == tmp->kind && ARRAY == tmp->type->ty) {
+        tmp->type->ty = PTR;
+    }
+    return tmp;
 }
 
 Node *primary() {
@@ -478,6 +506,7 @@ Node *primary() {
             consume_symbol(")");
             return node;
         }
+        // 変数呼び出しの場合
         Node *node = new_node_kind(ND_LVAR);
 
         LVar *lvar = find_lvar(tok);
@@ -512,6 +541,22 @@ Node *primary() {
         }
 
         tok = consume(TK_IDENT);
+        while (consume_symbol("[")) {
+            // Todo: 二重配列の場合、OKかチェック
+            // Todo: ポインタ型の配列
+            // 配列の宣言
+            type = malloc(sizeof (Type));
+            type->ty = ARRAY;
+            type->ptr_to = node->type;
+            node->type = type;
+            // [の後に続くのは変数か数値
+            Node *child = primary();
+            if (ND_NUM == child->kind) {
+                type->array_size = child->val;
+            }
+            // Todo: Node種別がLVARの場合
+            expect("]");
+        }
 
         LVar *lvar = calloc(1, sizeof(LVar));
         lvar->next = locals;
@@ -522,7 +567,7 @@ Node *primary() {
         node->offset = lvar->offset;
         lvar->type = node->type;
         locals = lvar;
-        variables++;
+
         return node;
     }
 

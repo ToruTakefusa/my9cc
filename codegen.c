@@ -20,6 +20,31 @@ void gen_lval(Node *node) {
 
 }
 
+/**
+ * ローカル変数のバイト数を計算する。
+ * @param node 対象Node
+ * @return nodeがnullもしくは、ローカル変数が存在しない場合は0。それ以外は、ローカル変数のバイト数。
+ */
+size_t get_variable_size(Node *node) {
+    if (!node) return 0;
+    if (!node->locals) return 0;
+
+    size_t sum = 0;
+    LVar *var = node->locals;
+    while(var) {
+        if (INT == var->type->ty) {
+            sum += 8;
+        } else if (ARRAY == var->type->ty || PTR == var->type->ty) {
+            // 扱える型はint, ptr, arrayで、一律8byteのため
+            sum += 8 * (var->type->array_size);
+        }
+
+        var = var->next;
+    }
+
+    return sum;
+}
+
 void gen(Node *node) {
     int count = 0;
     switch (node->kind) {
@@ -137,7 +162,8 @@ void gen(Node *node) {
             // 変数の個数分、領域を確保する
             printf("    push rbp\n");
             printf("    mov rbp, rsp\n");
-            printf("    sub rsp, %d\n", node->variables * 8);
+            printf("    sub rsp, %zu\n", get_variable_size(node));
+
             // node->argsの個数と、引数の値が格納されているレジスタの個数は一致している
             for (int i = 0; i < node->args->length; i++) {
                 Node *arg = getItem(node->args, i);

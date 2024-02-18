@@ -65,11 +65,13 @@ typedef enum {
 typedef enum {
     INT,    // int型
     PTR,    // *
+    ARRAY,
 } TypeName;
 
 typedef struct Vector Vector;
 typedef struct Node Node;
 typedef struct Type Type;
+typedef struct LVar LVar;
 
 struct Vector {
     int size;
@@ -79,7 +81,8 @@ struct Vector {
 
 struct Type {
     TypeName ty;     // 型
-    struct Type *ptr_to;    // tyがPTRの場合のみ使用する、参照先の型情報
+    struct Type *ptr_to;    // tyがPTR、ARRAYの場合使用する、参照先の型情報
+    size_t array_size;      // 配列の要素数
 };
 
 struct Node {
@@ -96,8 +99,17 @@ struct Node {
     Vector *args;   // 関数の引数。kindがND_FUNCTION_CALLもしくはND_FUNCTION_DEFの場合、使用する。
     Vector *stmt;   // kindがND_BLOCKもしくはND_FUNCTION_DEFの場合、使用。
     char *name;     // 関数名
-    int variables;  // 変数の数
-    Type *type;      // 型情報
+    Type *type;     // 型情報
+    LVar *locals;   // ローカル変数。kindがND_FUNCTION_DEFの場合のみ使用。
+};
+
+// ローカル変数の型
+struct LVar {
+    LVar *next; // 次の変数がNULL
+    char *name; // 変数の名前
+    Type *type;
+    int len;    // 変数の長さ(サイズではない)
+    int offset; // RBPからのオフセット
 };
 
 // 入力プログラム
